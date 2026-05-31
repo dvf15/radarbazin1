@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Radar Bazin">
+<meta name="theme-color" content="#020617">
+<title>Radar Bazin</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23020617'/%3E%3Ctext x='50' y='68' font-size='52' text-anchor='middle' fill='%2334d399' font-family='sans-serif' font-weight='bold'%3ER%3C/text%3E%3C/svg%3E">
+<style>
+  :root{ color-scheme: dark; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; background:#020617; color:#e2e8f0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; padding:16px; padding-bottom:48px; }
+  .wrap{ max-width:640px; margin:0 auto; }
+  h1{ font-size:24px; font-weight:800; color:#fff; margin:0 0 2px; }
+  .sub{ font-size:13px; color:#94a3b8; margin:0; }
+  .muted{ font-size:11px; color:#64748b; margin-top:4px; }
+  .card{ background:#0f172a; border:1px solid #1e293b; border-radius:14px; padding:16px; margin-bottom:14px; }
+  .lbl{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:#64748b; display:block; margin-bottom:5px; font-weight:600; }
+  .lblsec{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; font-weight:700; margin-bottom:12px; }
+  input{ width:100%; background:#1e293b; border:1px solid #334155; border-radius:10px; padding:10px 12px; color:#fff; font-size:16px; outline:none; }
+  input:focus{ border-color:#3b82f6; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .hint{ font-size:10px; color:#64748b; margin-top:4px; }
+  .row{ display:flex; justify-content:space-between; align-items:center; padding:3px 0; font-size:14px; }
+  .row .k{ color:#94a3b8; } .row .v{ color:#fff; font-weight:700; }
+  .badge{ font-size:11px; padding:2px 9px; border-radius:99px; font-weight:700; }
+  .acard{ border-radius:14px; border:1px solid; padding:16px; margin-bottom:12px; }
+  .verde{ background:rgba(16,185,129,.10); border-color:rgba(16,185,129,.40); }
+  .amarelo{ background:rgba(245,158,11,.10); border-color:rgba(245,158,11,.40); }
+  .vermelho{ background:rgba(244,63,94,.10); border-color:rgba(244,63,94,.40); }
+  .cinza{ background:rgba(100,116,139,.10); border-color:rgba(100,116,139,.40); }
+  .t-verde{ color:#34d399; } .t-amarelo{ color:#fbbf24; } .t-vermelho{ color:#fb7185; } .t-cinza{ color:#94a3b8; }
+  .t-blue{ color:#60a5fa; }
+  .tk{ font-size:18px; font-weight:800; color:#fff; }
+  .nm{ font-size:12px; color:#94a3b8; margin-top:1px; }
+  .se{ font-size:10px; color:#64748b; }
+  .resbox{ background:rgba(2,6,23,.45); border-radius:10px; padding:12px; margin-top:12px; }
+  .obs{ display:flex; gap:8px; font-size:12px; color:#94a3b8; line-height:1.45; margin-top:12px; }
+  button{ border:none; border-radius:12px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; width:100%; }
+  .btn-blue{ background:#2563eb; color:#fff; }
+  .btn-gray{ background:#1e293b; color:#e2e8f0; border:1px solid #334155; }
+  .btn-diag{ background:#0f172a; color:#a5b4fc; border:1px solid #3730a3; margin-top:12px; }
+  .actions{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px; }
+  .price-auto{ color:#34d399; font-weight:700; }
+  .price-stale{ color:#fbbf24; }
+  .footer{ font-size:12px; color:#94a3b8; line-height:1.6; }
+  .footer strong{ color:#cbd5e1; }
+  .legend div{ margin-top:3px; }
+  .warn{ font-size:11px; color:#64748b; border-top:1px solid #1e293b; padding-top:10px; margin-top:10px; }
+  .pill{ display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 10px; border-radius:99px; background:#1e293b; color:#cbd5e1; cursor:pointer; }
+  .spin{ display:inline-block; width:13px; height:13px; border:2px solid #334155; border-top-color:#60a5fa; border-radius:50%; animation:s .7s linear infinite; vertical-align:-2px; }
+  @keyframes s{ to{ transform:rotate(360deg); } }
+  .statusline{ font-size:13px; margin-top:6px; min-height:16px; line-height:1.5; }
+  dialog{ background:#0f172a; color:#e2e8f0; border:1px solid #1e293b; border-radius:16px; max-width:90vw; width:440px; padding:20px; }
+  dialog::backdrop{ background:rgba(0,0,0,.6); }
+  a, .linklike{ color:#60a5fa; cursor:pointer; }
+  .linklike{ text-decoration:underline; font-size:10px; font-weight:600; }
+  .addrow{ display:flex; gap:10px; }
+  .addrow input{ text-transform:uppercase; }
+  .addrow button{ width:auto; padding:10px 18px; white-space:nowrap; }
+  .rm{ background:rgba(2,6,23,.5); color:#94a3b8; border:1px solid #334155; border-radius:8px; width:30px; height:30px; padding:0; font-size:16px; line-height:1; flex:0 0 auto; }
+  .needdiv{ font-size:11px; color:#fbbf24; margin-top:8px; }
+  .divinfo{ font-size:10px; margin-top:4px; }
+  .divinfo.auto{ color:#34d399; } .divinfo.manual{ color:#94a3b8; }
+  #diagbox{ font-size:13px; line-height:1.6; }
+  #diagbox .ok{ color:#34d399; } #diagbox .bad{ color:#fb7185; } #diagbox .wait{ color:#fbbf24; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+    <div>
+      <h1>Radar Bazin</h1>
+      <p class="sub">Carteira previdenciária — cotação e dividendos (B3)</p>
+      <p class="muted" id="updated"></p>
+    </div>
+    <span class="pill" id="settingsBtn">⚙ Token</span>
+  </div>
+
+  <div class="statusline" id="status"></div>
+
+  <div class="card">
+    <div class="lblsec">Parâmetros Bazin</div>
+    <div class="grid2">
+      <div>
+        <span class="lbl">DY mínimo (%)</span>
+        <input id="dyMin" type="number" step="0.5" inputmode="decimal">
+        <div class="hint">Bazin clássico = 6%</div>
+      </div>
+      <div>
+        <span class="lbl">Margem segurança (%)</span>
+        <input id="margem" type="number" step="5" inputmode="decimal">
+        <div class="hint">Desconto extra sobre o Preço Justo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="lblsec">Adicionar ação</div>
+    <div class="addrow">
+      <input id="newTicker" type="text" placeholder="Ex: TAEE11, EGIE3, VIVT3" autocomplete="off" autocapitalize="characters" maxlength="8">
+      <button class="btn-blue" id="addBtn">+ Add</button>
+    </div>
+    <div class="hint">Digite o código da B3 e toque em Add. Cotação e dividendos são buscados automaticamente.</div>
+  </div>
+
+  <div id="cards"></div>
+
+  <div class="actions">
+    <button class="btn-blue" id="refreshBtn">↻ Atualizar tudo</button>
+    <button class="btn-gray" id="resetBtn">⟲ Resetar</button>
+  </div>
+  <button class="btn-diag" id="diagBtn">🔍 Diagnóstico de conexão</button>
+
+  <div class="card footer" style="margin-top:18px;">
+    <div style="font-weight:700;color:#cbd5e1;margin-bottom:6px;">Não está atualizando?</div>
+    <div>• Toque em <strong>🔍 Diagnóstico de conexão</strong> — ele diz exatamente onde está o problema.</div>
+    <div>• A causa mais comum no iPhone: abrir o app como <strong>arquivo local</strong> (prévia do OneDrive/Arquivos), que bloqueia a internet. Solução: abrir por um <strong>link (URL)</strong> e usar "Adicionar à Tela de Início".</div>
+    <div style="margin-top:8px;font-weight:700;color:#cbd5e1;">Como usar:</div>
+    <div>1. Toque em ⚙ Token e cole o token grátis do brapi.dev.</div>
+    <div>2. A média de dividendos (5 anos) é calculada do histórico. Edite na mão se quiser — vira "manual".</div>
+    <div class="legend warn">
+      <strong style="color:#cbd5e1;">Legenda:</strong>
+      <div><span class="t-verde">●</span> <strong>BARATA</strong>: cotação ≤ preço com margem</div>
+      <div><span class="t-amarelo">●</span> <strong>JUSTA</strong>: entre margem e preço justo</div>
+      <div><span class="t-vermelho">●</span> <strong>CARA</strong>: acima do preço justo</div>
+    </div>
+    <div class="warn"><strong>Aviso:</strong> Bazin é heurística. A média soma dividendos + JCP (bruto) e não ajusta desdobramentos. Não é recomendação de investimento.</div>
+  </div>
+</div>
+
+<dialog id="tokenDlg">
+  <div style="font-weight:800;font-size:17px;color:#fff;margin-bottom:8px;">Token brapi.dev (grátis)</div>
+  <div style="font-size:13px;color:#94a3b8;line-height:1.55;margin-bottom:14px;">
+    Crie uma conta grátis em <a href="https://brapi.dev/dashboard" target="_blank" rel="noopener">brapi.dev/dashboard</a>, copie sua chave (token) e cole abaixo. É salvo só neste aparelho.
+  </div>
+  <input id="tokenInput" type="text" placeholder="cole seu token aqui" autocomplete="off" style="margin-bottom:14px;">
+  <div class="actions" style="margin-top:0;">
+    <button class="btn-blue" id="tokenSave">Salvar token</button>
+    <button class="btn-gray" id="tokenClose">Fechar</button>
+  </div>
+</dialog>
+
+<dialog id="diagDlg">
+  <div style="font-weight:800;font-size:17px;color:#fff;margin-bottom:12px;">Diagnóstico de conexão</div>
+  <div id="diagbox">Toque em "Rodar" para testar.</div>
+  <div class="actions" style="margin-top:16px;">
+    <button class="btn-blue" id="diagRun">Rodar teste</button>
+    <button class="btn-gray" id="diagClose">Fechar</button>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  "use strict";
+  var STORE = "radar-bazin-html-v1";
+  var BASE = "https://brapi.dev/api/quote/";
+
+  var defaults = [
+    { ticker:"KLBN4", nome:"Klabin", setor:"Papel e Celulose", cotacao:3.30, mediaDividendos:0.23, observacao:"Setor cíclico (commodity + dólar). Dividendos variam com o ciclo.", auto:false, qTime:null, divFonte:"", divInfo:"" },
+    { ticker:"ITSA4", nome:"Itaúsa (Holding Itaú)", setor:"Financeiro / Holding", cotacao:12.96, mediaDividendos:0.80, observacao:"Holding do Itaú. Dividendos previsíveis + bonificações.", auto:false, qTime:null, divFonte:"", divInfo:"" },
+    { ticker:"BBDC4", nome:"Bradesco", setor:"Bancário", cotacao:17.70, mediaDividendos:1.34, observacao:"Em recuperação após 2022-2024.", auto:false, qTime:null, divFonte:"", divInfo:"" },
+    { ticker:"AXIA3", nome:"Axia Energia (ex-Eletrobras)", setor:"Energia Elétrica", cotacao:54.67, mediaDividendos:3.65, observacao:"⚠️ Privatizada em 2022: histórico estatal distorce a média. Valide.", auto:false, qTime:null, divFonte:"", divInfo:"" }
+  ];
+
+  var state = { acoes: clone(defaults), dyMin:6, margem:0, token:"", ultima:null };
+
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function num(v, fb){ var n=parseFloat(String(v).replace(",",".")); return isNaN(n)?fb:n; }
+  function round2(n){ return Math.round(n*100)/100; }
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORE);
+      if(raw){
+        var d = JSON.parse(raw);
+        if(Array.isArray(d.acoes) && d.acoes.length){
+          state.acoes = d.acoes.map(function(a){
+            return { ticker:String(a.ticker||"").toUpperCase(), nome:a.nome||"", setor:a.setor||"",
+              cotacao:num(a.cotacao,0), mediaDividendos:num(a.mediaDividendos,0), observacao:a.observacao||"",
+              auto:!!a.auto, qTime:a.qTime||null, divFonte:a.divFonte||"", divInfo:a.divInfo||"" };
+          });
+        }
+        state.dyMin=num(d.dyMin,6); state.margem=num(d.margem,0); state.token=d.token||""; state.ultima=d.ultima||null;
+      }
+    }catch(e){}
+  }
+  function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+
+  function calcular(a){
+    if(!(a.mediaDividendos > 0)) return { status:"—", cor:"cinza", semDiv:true };
+    var precoJusto=a.mediaDividendos/(state.dyMin/100), precoCompra=precoJusto*(1-state.margem/100);
+    var desconto=((precoJusto-a.cotacao)/precoJusto)*100, dyAtual=(a.mediaDividendos/a.cotacao)*100;
+    var status, cor;
+    if(a.cotacao<=precoCompra){ status="BARATA"; cor="verde"; }
+    else if(a.cotacao<=precoJusto){ status="JUSTA"; cor="amarelo"; }
+    else { status="CARA"; cor="vermelho"; }
+    return { precoJusto:precoJusto, precoCompra:precoCompra, desconto:desconto, dyAtual:dyAtual, status:status, cor:cor, semDiv:false };
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  // ---------- dividendos ----------
+  function dateOf(d){ var s=d&&(d.paymentDate||d.lastDatePrior||d.approvedOn); if(!s) return null; var dt=new Date(s); return isNaN(dt.getTime())?null:dt; }
+  function computeMedia(cash){
+    if(!Array.isArray(cash)||!cash.length) return null;
+    var byYear={}, nowY=new Date().getFullYear(), has=false;
+    cash.forEach(function(d){
+      var rate=parseFloat(d&&d.rate); if(!(rate>0)) return;
+      var dt=dateOf(d); var y=dt?dt.getFullYear():null;
+      if(!y){ var m=String(d&&d.relatedTo||"").match(/(20\d{2})/); if(m) y=parseInt(m[1],10); }
+      if(!y) return; byYear[y]=(byYear[y]||0)+rate; has=true;
+    });
+    if(!has) return null;
+    var years=Object.keys(byYear).map(Number).sort(function(a,b){return a-b;});
+    var complete=years.filter(function(y){ return y<nowY; });
+    if(complete.length){
+      var used=complete.slice(-5), sum=0; used.forEach(function(y){ sum+=byYear[y]; });
+      return { media:sum/used.length, info:"auto · média "+used[0]+"–"+used[used.length-1]+" ("+used.length+(used.length>1?" anos":" ano")+", div+JCP)" };
+    }
+    var cut=Date.now()-365*864e5, s12=0, c12=0;
+    cash.forEach(function(d){ var rate=parseFloat(d&&d.rate); var dt=dateOf(d); if(rate>0&&dt&&dt.getTime()>=cut){ s12+=rate; c12++; } });
+    if(c12) return { media:s12, info:"auto · 12 meses ("+c12+" pagto, div+JCP)" };
+    return null;
+  }
+
+  // ---------- render ----------
+  function render(){
+    $("dyMin").value=state.dyMin; $("margem").value=state.margem;
+    $("updated").textContent = state.ultima ? ("Última atualização: " + state.ultima) : "";
+    if(!state.acoes.length){ $("cards").innerHTML='<div class="card" style="text-align:center;color:#64748b;">Nenhuma ação. Adicione um código acima.</div>'; return; }
+    var html="";
+    state.acoes.forEach(function(a, idx){
+      var c=calcular(a);
+      var icon=c.cor==="verde"?"▼":c.cor==="amarelo"?"■":c.cor==="vermelho"?"▲":"·";
+      var priceCls=a.auto?"price-auto":"price-stale";
+      var autoTag=a.auto?("auto"+(a.qTime?(" · "+a.qTime):"")):"manual";
+      var divLink=state.token?' · <span class="linklike" data-div="'+idx+'">↻ histórico</span>':'';
+      var divInfoHtml=a.divInfo?('<div class="divinfo '+(a.divFonte==="manual"?"manual":"auto")+'">'+esc(a.divInfo)+'</div>'):(a.divFonte==="manual"?'<div class="divinfo manual">manual</div>':'');
+      html+=
+      '<div class="acard '+c.cor+'">'+
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'+
+          '<div>'+
+            '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
+              '<span class="tk">'+esc(a.ticker)+'</span>'+
+              '<span class="badge t-'+c.cor+'" style="background:rgba(2,6,23,.5);">'+c.status+'</span>'+
+            '</div>'+
+            '<div class="nm">'+esc(a.nome||"—")+'</div>'+
+            (a.setor?'<div class="se">'+esc(a.setor)+'</div>':'')+
+          '</div>'+
+          '<div style="display:flex;align-items:center;gap:10px;">'+
+            '<span class="t-'+c.cor+'" style="font-size:18px;">'+icon+'</span>'+
+            '<button class="rm" data-rm="'+idx+'" title="Remover">×</button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="grid2" style="margin-top:12px;">'+
+          '<div>'+
+            '<span class="lbl">Cotação (R$) · <span class="'+priceCls+'">'+autoTag+'</span></span>'+
+            '<input data-idx="'+idx+'" data-campo="cotacao" type="number" step="0.01" inputmode="decimal" value="'+a.cotacao.toFixed(2)+'">'+
+          '</div>'+
+          '<div>'+
+            '<span class="lbl">Méd. dividendos (R$)'+divLink+'</span>'+
+            '<input data-idx="'+idx+'" data-campo="mediaDividendos" type="number" step="0.01" inputmode="decimal" value="'+(a.mediaDividendos?a.mediaDividendos.toFixed(2):"")+'" placeholder="auto/def.">'+
+            divInfoHtml+
+          '</div>'+
+        '</div>'+
+        (c.semDiv
+          ? '<div class="needdiv">Sem dividendos. Toque em <strong>↻ histórico</strong> ou digite a média acima.</div>'
+          : '<div class="resbox">'+
+              '<div class="row"><span class="k">Preço Justo (Bazin)</span><span class="v">R$ '+c.precoJusto.toFixed(2)+'</span></div>'+
+              (state.margem>0?'<div class="row"><span class="k">Preço Compra (c/ margem)</span><span class="v">R$ '+c.precoCompra.toFixed(2)+'</span></div>':'')+
+              '<div class="row"><span class="k">Desconto vs. Justo</span><span class="v '+(c.desconto>=0?"t-verde":"t-vermelho")+'">'+(c.desconto>=0?"+":"")+c.desconto.toFixed(1)+'%</span></div>'+
+              '<div class="row"><span class="k">DY estimado</span><span class="v t-blue">'+c.dyAtual.toFixed(2)+'%</span></div>'+
+            '</div>')+
+        (a.observacao?'<div class="obs"><span>⚠</span><span>'+esc(a.observacao)+'</span></div>':'')+
+      '</div>';
+    });
+    $("cards").innerHTML=html;
+    Array.prototype.forEach.call(document.querySelectorAll('#cards input'), function(inp){
+      inp.addEventListener("change", function(){
+        var i=+inp.getAttribute("data-idx"), campo=inp.getAttribute("data-campo");
+        var v=num(inp.value, state.acoes[i][campo]); state.acoes[i][campo]=v;
+        if(campo==="cotacao") state.acoes[i].auto=false;
+        if(campo==="mediaDividendos"){ state.acoes[i].divFonte="manual"; state.acoes[i].divInfo=""; }
+        save(); render();
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#cards [data-rm]'), function(btn){
+      btn.addEventListener("click", function(){
+        var i=+btn.getAttribute("data-rm"), a=state.acoes[i];
+        if(confirm("Remover "+a.ticker+" da carteira?")){ state.acoes.splice(i,1); save(); render(); }
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#cards [data-div]'), function(el){
+      el.addEventListener("click", function(){ fetchOne(state.acoes[+el.getAttribute("data-div")].ticker, true); });
+    });
+  }
+
+  function setStatus(msg, kind){
+    var el=$("status"); if(!msg){ el.innerHTML=""; return; }
+    var color=kind==="err"?"#fb7185":kind==="ok"?"#34d399":"#94a3b8";
+    el.innerHTML='<span style="color:'+color+'">'+msg+'</span>';
+  }
+  function findAcao(t){ for(var i=0;i<state.acoes.length;i++){ if(state.acoes[i].ticker===t) return state.acoes[i]; } return null; }
+
+  function url(ticker, withDiv){ return BASE+encodeURIComponent(ticker)+"?token="+encodeURIComponent(state.token)+(withDiv?"&dividends=true":""); }
+  function getJSON(u){
+    return fetch(u, {cache:"no-store"}).then(function(r){
+      return r.json().catch(function(){ return null; }).then(function(j){ return {status:r.status, ok:r.ok, json:j}; });
+    });
+  }
+  function netMsg(e){
+    // fetch lança TypeError em falha de rede/CORS
+    if(e && (e.name==="TypeError" || /fetch|network/i.test(e.message||"")))
+      return "Sem conexão / bloqueio de rede (CORS). Quase sempre é por abrir o app como ARQUIVO LOCAL. Abra por um LINK (URL).";
+    return (e&&e.message)||"Erro desconhecido.";
+  }
+  function priceOf(res){ var q=res&&res.json&&res.json.results&&res.json.results[0]; return (q&&typeof q.regularMarketPrice==="number")?q:null; }
+
+  function applyQuote(a, q){
+    a.cotacao=q.regularMarketPrice; a.auto=true; a.qTime=horaCurta(q.regularMarketTime);
+    if(!a.nome) a.nome=q.longName||q.shortName||"";
+  }
+  function applyDividends(a, q){
+    if(a.divFonte==="manual") return;
+    if(!q || !q.dividendsData || !q.dividendsData.cashDividends) return;
+    var r=computeMedia(q.dividendsData.cashDividends);
+    if(r && r.media>0){ a.mediaDividendos=round2(r.media); a.divFonte="auto"; a.divInfo=r.info; }
+  }
+
+  // Busca resiliente de 1 ticker: cotação é essencial; dividendos é "extra".
+  // Tenta com dividends=true; se a chamada falhar (plano sem dividendos), refaz só a cotação.
+  // Resolve com {q, gotDiv} ; rejeita com Error('AUTH'|'RATE'|'NODATA') ou erro de rede.
+  function fetchTicker(ticker){
+    return getJSON(url(ticker, true)).then(function(res){
+      if(res.status===401||res.status===403) throw new Error("AUTH");
+      if(res.status===429) throw new Error("RATE");
+      var q=priceOf(res);
+      if(q) return { q:q, gotDiv:!!(q.dividendsData&&q.dividendsData.cashDividends) };
+      // dividends pode ter derrubado a requisição → tenta só cotação
+      return getJSON(url(ticker, false)).then(function(r2){
+        if(r2.status===401||r2.status===403) throw new Error("AUTH");
+        if(r2.status===429) throw new Error("RATE");
+        var q2=priceOf(r2);
+        if(q2) return { q:q2, gotDiv:false };
+        throw new Error("NODATA");
+      });
+    });
+  }
+  function errText(e){
+    if(e&&e.message==="AUTH") return "Token inválido. Confira em ⚙ Token.";
+    if(e&&e.message==="RATE") return "Limite de requisições atingido. Aguarde alguns minutos.";
+    if(e&&e.message==="NODATA") return "código inválido ou fora do plano";
+    return netMsg(e);
+  }
+
+  function fetchOne(ticker, isUser){
+    if(!state.token){ setStatus("Sem token — toque em ⚙ Token.", "err"); return Promise.resolve(); }
+    if(isUser) setStatus('<span class="spin"></span> Buscando '+ticker+'...', "info");
+    return fetchTicker(ticker).then(function(out){
+      var a=findAcao(ticker); if(!a) return;
+      applyQuote(a, out.q); if(out.gotDiv) applyDividends(a, out.q);
+      state.ultima=agora(); save(); render();
+      if(isUser){
+        if(out.gotDiv && a.divInfo) setStatus(ticker+" ✓ cotação + dividendos.", "ok");
+        else setStatus(ticker+" ✓ cotação. Dividendos não vieram (plano grátis pode não incluir) — digite a média na mão.", "info");
+      }
+    }).catch(function(e){
+      if(isUser) setStatus(ticker+": "+errText(e), "err");
+    });
+  }
+
+  function refreshAll(silent){
+    if(!state.acoes.length) return;
+    if(!state.token){ if(!silent) setStatus("Sem token — toque em ⚙ Token para ativar a busca automática.", "err"); return; }
+    var list=state.acoes.slice(), i=0, ok=0, divs=0, faltou=[], fatal=null;
+    function step(){
+      if(fatal || i>=list.length){ finish(); return; }
+      var t=list[i++].ticker;
+      setStatus('<span class="spin"></span> Atualizando '+i+'/'+list.length+' ('+t+')...', "info");
+      fetchTicker(t).then(function(out){
+        var a=findAcao(t); if(a){ applyQuote(a,out.q); ok++; if(out.gotDiv){ applyDividends(a,out.q); if(a.divFonte==="auto") divs++; } }
+        save();
+      }).catch(function(e){
+        if(e&&(e.message==="AUTH"||e.message==="RATE")) fatal=errText(e);
+        else if(e&&e.message==="NODATA") faltou.push(t);
+        else fatal=netMsg(e); // erro de rede: para tudo (problema é geral)
+      }).then(function(){ render(); step(); });
+    }
+    function finish(){
+      state.ultima=agora(); save(); render();
+      if(fatal){ setStatus(fatal, "err"); return; }
+      if(ok===0){ setStatus("Nenhuma cotação retornada. Rode o 🔍 Diagnóstico.", "err"); return; }
+      var msg="Atualizado "+ok+"/"+list.length;
+      if(divs>0) msg+=" · dividendos em "+divs;
+      else msg+=" · sem dividendos (plano grátis pode não incluir — edite a média na mão)";
+      if(faltou.length) msg+=" · sem dados: "+faltou.join(", ");
+      setStatus(msg, divs>0?"ok":"info");
+    }
+    step();
+  }
+
+  function addTicker(){
+    var raw=($("newTicker").value||"").trim().toUpperCase().replace(/[^A-Z0-9]/g,"");
+    if(!raw){ setStatus("Digite um código (ex: TAEE11).", "err"); return; }
+    if(findAcao(raw)){ setStatus(raw+" já está na carteira.", "err"); return; }
+    state.acoes.push({ ticker:raw, nome:"", setor:"", cotacao:0, mediaDividendos:0, observacao:"", auto:false, qTime:null, divFonte:"", divInfo:"" });
+    $("newTicker").value=""; save(); render();
+    fetchOne(raw, true);
+  }
+
+  // ---------- diagnóstico ----------
+  function diagRun(){
+    var box=$("diagbox");
+    box.innerHTML='<span class="wait">⏳ Testando conexão (PETR4, sem token)...</span>';
+    // PETR4 é liberada sem token: testa rede/CORS puro
+    fetch(BASE+"PETR4?dividends=true", {cache:"no-store"}).then(function(r){ return r.json().then(function(j){ return {ok:r.ok,status:r.status,json:j}; }); })
+    .then(function(res){
+      var q=res.json&&res.json.results&&res.json.results[0];
+      var hasPrice=q&&typeof q.regularMarketPrice==="number";
+      var hasDiv=q&&q.dividendsData&&q.dividendsData.cashDividends&&q.dividendsData.cashDividends.length;
+      var out="";
+      if(hasPrice){
+        out+='<div class="ok">✓ Conexão com a brapi OK (PETR4 = R$ '+q.regularMarketPrice.toFixed(2)+').</div>';
+        out+='<div class="'+(hasDiv?"ok":"bad")+'">'+(hasDiv?"✓":"✕")+' Dividendos no teste: '+(hasDiv?(q.dividendsData.cashDividends.length+" registros."):"não vieram.")+'</div>';
+        if(!state.token){ out+='<div class="bad">✕ Falta o seu token — toque em ⚙ Token. (a conexão está boa)</div>'; box.innerHTML=out; return; }
+        // testa um ticker seu
+        var t=state.acoes.length?state.acoes[0].ticker:"ITSA4";
+        box.innerHTML=out+'<div class="wait">⏳ Testando '+t+' com seu token...</div>';
+        fetchTicker(t).then(function(o){
+          var m=saved+'<div class="ok">✓ '+t+' = R$ '+o.q.regularMarketPrice.toFixed(2)+' com seu token.</div>';
+          var gd=o.gotDiv&&o.q.dividendsData&&o.q.dividendsData.cashDividends&&o.q.dividendsData.cashDividends.length;
+          m+='<div class="'+(gd?"ok":"bad")+'">'+(gd?("✓ Dividendos do "+t+": "+o.q.dividendsData.cashDividends.length+" registros. Tudo certo!"):"✕ Cotação OK, mas o seu plano NÃO trouxe dividendos. Use a média manual ou troque a fonte.")+'</div>';
+          box.innerHTML=m;
+        }).catch(function(e){
+          var m=saved+'<div class="bad">✕ '+t+' falhou: '+esc(errText(e))+'</div>';
+          if(e&&e.message==="AUTH") m+='<div class="bad">→ Token errado. Copie de novo em brapi.dev/dashboard.</div>';
+          box.innerHTML=m;
+        });
+      } else {
+        box.innerHTML='<div class="bad">✕ A brapi respondeu, mas sem cotação (HTTP '+res.status+'). Pode ser instabilidade do serviço — tente de novo em instantes.</div>';
+      }
+    })
+    .catch(function(e){
+      box.innerHTML='<div class="bad">✕ Não consegui nem conectar à brapi.</div>'+
+        '<div style="margin-top:8px;color:#cbd5e1;">Causa quase certa: o app foi aberto como <strong>arquivo local</strong> (prévia do OneDrive/Arquivos), e o iPhone bloqueia a internet nesse modo.</div>'+
+        '<div style="margin-top:8px;color:#cbd5e1;">Solução: publique o arquivo num <strong>link (URL)</strong> e abra por lá no Safari → "Adicionar à Tela de Início".</div>';
+    });
+  }
+
+  function horaCurta(iso){ try{ var d=new Date(iso); if(isNaN(d.getTime())) return null; return d.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}); }catch(e){ return null; } }
+  function agora(){ return new Date().toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
+
+  // ---------- eventos ----------
+  $("dyMin").addEventListener("change", function(){ state.dyMin=num(this.value,6); save(); render(); });
+  $("margem").addEventListener("change", function(){ state.margem=num(this.value,0); save(); render(); });
+  $("refreshBtn").addEventListener("click", function(){ refreshAll(false); });
+  $("addBtn").addEventListener("click", addTicker);
+  $("newTicker").addEventListener("keydown", function(e){ if(e.key==="Enter") addTicker(); });
+
+  $("resetBtn").addEventListener("click", function(){
+    if(confirm("Restaurar a carteira inicial? Ações adicionadas e edições serão perdidas. O token é mantido.")){
+      var tk=state.token; state.acoes=clone(defaults); state.dyMin=6; state.margem=0; state.ultima=null; state.token=tk;
+      save(); render(); refreshAll(true);
+    }
+  });
+
+  var dlg=$("tokenDlg");
+  $("settingsBtn").addEventListener("click", function(){ $("tokenInput").value=state.token||""; dlg.showModal(); });
+  $("tokenClose").addEventListener("click", function(){ dlg.close(); });
+  $("tokenSave").addEventListener("click", function(){
+    state.token=($("tokenInput").value||"").trim(); save(); dlg.close();
+    if(state.token) refreshAll(false); else setStatus("Token removido — modo manual.", "info");
+  });
+
+  var ddlg=$("diagDlg");
+  $("diagBtn").addEventListener("click", function(){ $("diagbox").innerHTML='Toque em "Rodar teste".'; ddlg.showModal(); });
+  $("diagClose").addEventListener("click", function(){ ddlg.close(); });
+  $("diagRun").addEventListener("click", diagRun);
+
+  // ---------- init ----------
+  load(); render();
+  if(state.token) refreshAll(false);
+  else { setStatus("Toque em ⚙ Token para ativar a busca automática (cadastro grátis).", "info"); setTimeout(function(){ try{ dlg.showModal(); }catch(e){} }, 400); }
+})();
+</script>
+</body>
+</html>
