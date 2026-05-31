@@ -333,20 +333,31 @@
   }
 
   // Busca resiliente de 1 ticker: cotação é essencial; dividendos é "extra".
-  // Tenta com dividends=true; se a chamada falhar (plano sem dividendos), refaz só a cotação.
-  // Resolve com {q, gotDiv} ; rejeita com Error('AUTH'|'RATE'|'NODATA') ou erro de rede.
+  // IMPORTANTE: NÃO concluir "token inválido" só porque dividends=true falhou —
+  // no plano grátis o dividends=true pode dar 403 mesmo com token válido.
+  // Só consideramos token inválido se a cotação SEM dividendos também der 401/403.
+  var divBlocked = false; // uma vez detectado plano sem dividendos, para de tentar
+  function fetchPlain(ticker){
+    return getJSON(url(ticker, false)).then(function(r2){
+      var q2=priceOf(r2);
+      if(r2.ok && q2) return { q:q2, gotDiv:false };
+      if(r2.status===401||r2.status===403) throw new Error("AUTH");
+      if(r2.status===429) throw new Error("RATE");
+      throw new Error("NODATA");
+    });
+  }
   function fetchTicker(ticker){
+    if(divBlocked) return fetchPlain(ticker);
     return getJSON(url(ticker, true)).then(function(res){
-      if(res.status===401||res.status===403) throw new Error("AUTH");
       if(res.status===429) throw new Error("RATE");
       var q=priceOf(res);
-      if(q) return { q:q, gotDiv:!!(q.dividendsData&&q.dividendsData.cashDividends) };
-      // dividends pode ter derrubado a requisição → tenta só cotação
+      if(res.ok && q) return { q:q, gotDiv:!!(q.dividendsData&&q.dividendsData.cashDividends) };
+      // dividends falhou (403 do plano, ou sem preço) → tenta SÓ a cotação
       return getJSON(url(ticker, false)).then(function(r2){
+        var q2=priceOf(r2);
+        if(r2.ok && q2){ divBlocked=true; return { q:q2, gotDiv:false }; } // token OK, plano sem dividendos
         if(r2.status===401||r2.status===403) throw new Error("AUTH");
         if(r2.status===429) throw new Error("RATE");
-        var q2=priceOf(r2);
-        if(q2) return { q:q2, gotDiv:false };
         throw new Error("NODATA");
       });
     });
@@ -377,6 +388,7 @@
   function refreshAll(silent){
     if(!state.acoes.length) return;
     if(!state.token){ if(!silent) setStatus("Sem token — toque em ⚙ Token para ativar a busca automática.", "err"); return; }
+    divBlocked=false; // re-testa dividendos a cada atualização
     var list=state.acoes.slice(), i=0, ok=0, divs=0, faltou=[], fatal=null;
     function step(){
       if(fatal || i>=list.length){ finish(); return; }
