@@ -63,8 +63,6 @@
   .addrow button{ width:auto; padding:10px 18px; white-space:nowrap; }
   .rm{ background:rgba(2,6,23,.5); color:#94a3b8; border:1px solid #334155; border-radius:8px; width:30px; height:30px; padding:0; font-size:16px; line-height:1; flex:0 0 auto; }
   .needdiv{ font-size:11px; color:#fbbf24; margin-top:8px; }
-  .divinfo{ font-size:10px; margin-top:4px; }
-  .divinfo.auto{ color:#34d399; } .divinfo.manual{ color:#94a3b8; }
   #diagbox{ font-size:13px; line-height:1.6; }
   #diagbox .ok{ color:#34d399; } #diagbox .bad{ color:#fb7185; } #diagbox .wait{ color:#fbbf24; }
 </style>
@@ -74,7 +72,7 @@
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
     <div>
       <h1>Radar Bazin</h1>
-      <p class="sub">Carteira previdenciária — cotação e dividendos (B3)</p>
+      <p class="sub">Carteira previdenciária — cotação automática (B3)</p>
       <p class="muted" id="updated"></p>
     </div>
     <span class="pill" id="settingsBtn">⚙ Token</span>
@@ -104,38 +102,37 @@
       <input id="newTicker" type="text" placeholder="Ex: TAEE11, EGIE3, VIVT3" autocomplete="off" autocapitalize="characters" maxlength="8">
       <button class="btn-blue" id="addBtn">+ Add</button>
     </div>
-    <div class="hint">Digite o código da B3 e toque em Add. Cotação e dividendos são buscados automaticamente.</div>
+    <div class="hint">Digite o código da B3 e toque em Add. A cotação é buscada automaticamente; a média de dividendos você digita uma vez.</div>
   </div>
 
   <div id="cards"></div>
 
   <div class="actions">
-    <button class="btn-blue" id="refreshBtn">↻ Atualizar tudo</button>
+    <button class="btn-blue" id="refreshBtn">↻ Atualizar cotações</button>
     <button class="btn-gray" id="resetBtn">⟲ Resetar</button>
   </div>
   <button class="btn-diag" id="diagBtn">🔍 Diagnóstico de conexão</button>
 
   <div class="card footer" style="margin-top:18px;">
-    <div style="font-weight:700;color:#cbd5e1;margin-bottom:6px;">Não está atualizando?</div>
-    <div>• Toque em <strong>🔍 Diagnóstico de conexão</strong> — ele diz exatamente onde está o problema.</div>
-    <div>• A causa mais comum no iPhone: abrir o app como <strong>arquivo local</strong> (prévia do OneDrive/Arquivos), que bloqueia a internet. Solução: abrir por um <strong>link (URL)</strong> e usar "Adicionar à Tela de Início".</div>
-    <div style="margin-top:8px;font-weight:700;color:#cbd5e1;">Como usar:</div>
-    <div>1. Toque em ⚙ Token e cole o token grátis do brapi.dev.</div>
-    <div>2. A média de dividendos (5 anos) é calculada do histórico. Edite na mão se quiser — vira "manual".</div>
+    <div style="font-weight:700;color:#cbd5e1;margin-bottom:6px;">Como usar:</div>
+    <div>1. Toque em ⚙ Token e cole o token grátis do brapi.dev (ativa a cotação automática).</div>
+    <div>2. Em cada ação, digite a <strong>média de dividendos por ação</strong> (some os proventos do ano e, se quiser, faça a média de alguns anos). Você lê esse número no Status Invest/Investidor10 em segundos. Muda ~1x por ano.</div>
+    <div>3. O Preço Justo, o status e o DY recalculam sozinhos a partir da cotação (diária) e dessa média.</div>
+    <div>4. No celular: menu do navegador → <strong>"Adicionar à Tela de Início"</strong> para virar app com ícone.</div>
     <div class="legend warn">
       <strong style="color:#cbd5e1;">Legenda:</strong>
       <div><span class="t-verde">●</span> <strong>BARATA</strong>: cotação ≤ preço com margem</div>
       <div><span class="t-amarelo">●</span> <strong>JUSTA</strong>: entre margem e preço justo</div>
       <div><span class="t-vermelho">●</span> <strong>CARA</strong>: acima do preço justo</div>
     </div>
-    <div class="warn"><strong>Aviso:</strong> Bazin é heurística. A média soma dividendos + JCP (bruto) e não ajusta desdobramentos. Não é recomendação de investimento.</div>
+    <div class="warn"><strong>Sobre dividendos automáticos:</strong> não existe fonte gratuita de histórico de dividendos da B3 que funcione no navegador (brapi e OkaneBox são pagas; Yahoo bloqueia o acesso). Por isso a média é digitada por você. Bazin é heurística, não recomendação de investimento.</div>
   </div>
 </div>
 
 <dialog id="tokenDlg">
   <div style="font-weight:800;font-size:17px;color:#fff;margin-bottom:8px;">Token brapi.dev (grátis)</div>
   <div style="font-size:13px;color:#94a3b8;line-height:1.55;margin-bottom:14px;">
-    Crie uma conta grátis em <a href="https://brapi.dev/dashboard" target="_blank" rel="noopener">brapi.dev/dashboard</a>, copie sua chave (token) e cole abaixo. É salvo só neste aparelho.
+    A cotação automática usa a brapi. Crie uma conta grátis em <a href="https://brapi.dev/dashboard" target="_blank" rel="noopener">brapi.dev/dashboard</a>, copie sua chave (token) e cole abaixo. Fica salvo só neste aparelho.
   </div>
   <input id="tokenInput" type="text" placeholder="cole seu token aqui" autocomplete="off" style="margin-bottom:14px;">
   <div class="actions" style="margin-top:0;">
@@ -146,7 +143,7 @@
 
 <dialog id="diagDlg">
   <div style="font-weight:800;font-size:17px;color:#fff;margin-bottom:12px;">Diagnóstico de conexão</div>
-  <div id="diagbox">Toque em "Rodar" para testar.</div>
+  <div id="diagbox">Toque em "Rodar teste".</div>
   <div class="actions" style="margin-top:16px;">
     <button class="btn-blue" id="diagRun">Rodar teste</button>
     <button class="btn-gray" id="diagClose">Fechar</button>
@@ -160,17 +157,16 @@
   var BASE = "https://brapi.dev/api/quote/";
 
   var defaults = [
-    { ticker:"KLBN4", nome:"Klabin", setor:"Papel e Celulose", cotacao:3.30, mediaDividendos:0.23, observacao:"Setor cíclico (commodity + dólar). Dividendos variam com o ciclo.", auto:false, qTime:null, divFonte:"", divInfo:"" },
-    { ticker:"ITSA4", nome:"Itaúsa (Holding Itaú)", setor:"Financeiro / Holding", cotacao:12.96, mediaDividendos:0.80, observacao:"Holding do Itaú. Dividendos previsíveis + bonificações.", auto:false, qTime:null, divFonte:"", divInfo:"" },
-    { ticker:"BBDC4", nome:"Bradesco", setor:"Bancário", cotacao:17.70, mediaDividendos:1.34, observacao:"Em recuperação após 2022-2024.", auto:false, qTime:null, divFonte:"", divInfo:"" },
-    { ticker:"AXIA3", nome:"Axia Energia (ex-Eletrobras)", setor:"Energia Elétrica", cotacao:54.67, mediaDividendos:3.65, observacao:"⚠️ Privatizada em 2022: histórico estatal distorce a média. Valide.", auto:false, qTime:null, divFonte:"", divInfo:"" }
+    { ticker:"KLBN4", nome:"Klabin", setor:"Papel e Celulose", cotacao:3.30, mediaDividendos:0.23, observacao:"Setor cíclico (commodity + dólar). Dividendos variam com o ciclo.", auto:false, qTime:null },
+    { ticker:"ITSA4", nome:"Itaúsa (Holding Itaú)", setor:"Financeiro / Holding", cotacao:12.96, mediaDividendos:0.80, observacao:"Holding do Itaú. Dividendos previsíveis + bonificações.", auto:false, qTime:null },
+    { ticker:"BBDC4", nome:"Bradesco", setor:"Bancário", cotacao:17.70, mediaDividendos:1.34, observacao:"Em recuperação após 2022-2024.", auto:false, qTime:null },
+    { ticker:"AXIA3", nome:"Axia Energia (ex-Eletrobras)", setor:"Energia Elétrica", cotacao:54.67, mediaDividendos:3.65, observacao:"⚠️ Privatizada em 2022: histórico estatal distorce a média. Valide.", auto:false, qTime:null }
   ];
 
   var state = { acoes: clone(defaults), dyMin:6, margem:0, token:"", ultima:null };
 
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
   function num(v, fb){ var n=parseFloat(String(v).replace(",",".")); return isNaN(n)?fb:n; }
-  function round2(n){ return Math.round(n*100)/100; }
 
   function load(){
     try{
@@ -181,7 +177,7 @@
           state.acoes = d.acoes.map(function(a){
             return { ticker:String(a.ticker||"").toUpperCase(), nome:a.nome||"", setor:a.setor||"",
               cotacao:num(a.cotacao,0), mediaDividendos:num(a.mediaDividendos,0), observacao:a.observacao||"",
-              auto:!!a.auto, qTime:a.qTime||null, divFonte:a.divFonte||"", divInfo:a.divInfo||"" };
+              auto:!!a.auto, qTime:a.qTime||null };
           });
         }
         state.dyMin=num(d.dyMin,6); state.margem=num(d.margem,0); state.token=d.token||""; state.ultima=d.ultima||null;
@@ -204,31 +200,6 @@
   var $ = function(id){ return document.getElementById(id); };
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
-  // ---------- dividendos ----------
-  function dateOf(d){ var s=d&&(d.paymentDate||d.lastDatePrior||d.approvedOn); if(!s) return null; var dt=new Date(s); return isNaN(dt.getTime())?null:dt; }
-  function computeMedia(cash){
-    if(!Array.isArray(cash)||!cash.length) return null;
-    var byYear={}, nowY=new Date().getFullYear(), has=false;
-    cash.forEach(function(d){
-      var rate=parseFloat(d&&d.rate); if(!(rate>0)) return;
-      var dt=dateOf(d); var y=dt?dt.getFullYear():null;
-      if(!y){ var m=String(d&&d.relatedTo||"").match(/(20\d{2})/); if(m) y=parseInt(m[1],10); }
-      if(!y) return; byYear[y]=(byYear[y]||0)+rate; has=true;
-    });
-    if(!has) return null;
-    var years=Object.keys(byYear).map(Number).sort(function(a,b){return a-b;});
-    var complete=years.filter(function(y){ return y<nowY; });
-    if(complete.length){
-      var used=complete.slice(-5), sum=0; used.forEach(function(y){ sum+=byYear[y]; });
-      return { media:sum/used.length, info:"auto · média "+used[0]+"–"+used[used.length-1]+" ("+used.length+(used.length>1?" anos":" ano")+", div+JCP)" };
-    }
-    var cut=Date.now()-365*864e5, s12=0, c12=0;
-    cash.forEach(function(d){ var rate=parseFloat(d&&d.rate); var dt=dateOf(d); if(rate>0&&dt&&dt.getTime()>=cut){ s12+=rate; c12++; } });
-    if(c12) return { media:s12, info:"auto · 12 meses ("+c12+" pagto, div+JCP)" };
-    return null;
-  }
-
-  // ---------- render ----------
   function render(){
     $("dyMin").value=state.dyMin; $("margem").value=state.margem;
     $("updated").textContent = state.ultima ? ("Última atualização: " + state.ultima) : "";
@@ -239,8 +210,6 @@
       var icon=c.cor==="verde"?"▼":c.cor==="amarelo"?"■":c.cor==="vermelho"?"▲":"·";
       var priceCls=a.auto?"price-auto":"price-stale";
       var autoTag=a.auto?("auto"+(a.qTime?(" · "+a.qTime):"")):"manual";
-      var divLink=state.token?' · <span class="linklike" data-div="'+idx+'">↻ histórico</span>':'';
-      var divInfoHtml=a.divInfo?('<div class="divinfo '+(a.divFonte==="manual"?"manual":"auto")+'">'+esc(a.divInfo)+'</div>'):(a.divFonte==="manual"?'<div class="divinfo manual">manual</div>':'');
       html+=
       '<div class="acard '+c.cor+'">'+
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'+
@@ -263,13 +232,12 @@
             '<input data-idx="'+idx+'" data-campo="cotacao" type="number" step="0.01" inputmode="decimal" value="'+a.cotacao.toFixed(2)+'">'+
           '</div>'+
           '<div>'+
-            '<span class="lbl">Méd. dividendos (R$)'+divLink+'</span>'+
-            '<input data-idx="'+idx+'" data-campo="mediaDividendos" type="number" step="0.01" inputmode="decimal" value="'+(a.mediaDividendos?a.mediaDividendos.toFixed(2):"")+'" placeholder="auto/def.">'+
-            divInfoHtml+
+            '<span class="lbl">Méd. dividendos (R$)</span>'+
+            '<input data-idx="'+idx+'" data-campo="mediaDividendos" type="number" step="0.01" inputmode="decimal" value="'+(a.mediaDividendos?a.mediaDividendos.toFixed(2):"")+'" placeholder="digite">'+
           '</div>'+
         '</div>'+
         (c.semDiv
-          ? '<div class="needdiv">Sem dividendos. Toque em <strong>↻ histórico</strong> ou digite a média acima.</div>'
+          ? '<div class="needdiv">Digite a <strong>média de dividendos</strong> acima para calcular o Preço Justo.</div>'
           : '<div class="resbox">'+
               '<div class="row"><span class="k">Preço Justo (Bazin)</span><span class="v">R$ '+c.precoJusto.toFixed(2)+'</span></div>'+
               (state.margem>0?'<div class="row"><span class="k">Preço Compra (c/ margem)</span><span class="v">R$ '+c.precoCompra.toFixed(2)+'</span></div>':'')+
@@ -285,7 +253,6 @@
         var i=+inp.getAttribute("data-idx"), campo=inp.getAttribute("data-campo");
         var v=num(inp.value, state.acoes[i][campo]); state.acoes[i][campo]=v;
         if(campo==="cotacao") state.acoes[i].auto=false;
-        if(campo==="mediaDividendos"){ state.acoes[i].divFonte="manual"; state.acoes[i].divInfo=""; }
         save(); render();
       });
     });
@@ -294,9 +261,6 @@
         var i=+btn.getAttribute("data-rm"), a=state.acoes[i];
         if(confirm("Remover "+a.ticker+" da carteira?")){ state.acoes.splice(i,1); save(); render(); }
       });
-    });
-    Array.prototype.forEach.call(document.querySelectorAll('#cards [data-div]'), function(el){
-      el.addEventListener("click", function(){ fetchOne(state.acoes[+el.getAttribute("data-div")].ticker, true); });
     });
   }
 
@@ -307,65 +271,37 @@
   }
   function findAcao(t){ for(var i=0;i<state.acoes.length;i++){ if(state.acoes[i].ticker===t) return state.acoes[i]; } return null; }
 
-  function url(ticker, withDiv){ return BASE+encodeURIComponent(ticker)+"?token="+encodeURIComponent(state.token)+(withDiv?"&dividends=true":""); }
+  function url(ticker){ return BASE+encodeURIComponent(ticker)+"?token="+encodeURIComponent(state.token); }
   function getJSON(u){
     return fetch(u, {cache:"no-store"}).then(function(r){
       return r.json().catch(function(){ return null; }).then(function(j){ return {status:r.status, ok:r.ok, json:j}; });
     });
   }
   function netMsg(e){
-    // fetch lança TypeError em falha de rede/CORS
     if(e && (e.name==="TypeError" || /fetch|network/i.test(e.message||"")))
       return "Sem conexão / bloqueio de rede (CORS). Quase sempre é por abrir o app como ARQUIVO LOCAL. Abra por um LINK (URL).";
     return (e&&e.message)||"Erro desconhecido.";
   }
   function priceOf(res){ var q=res&&res.json&&res.json.results&&res.json.results[0]; return (q&&typeof q.regularMarketPrice==="number")?q:null; }
-
   function applyQuote(a, q){
     a.cotacao=q.regularMarketPrice; a.auto=true; a.qTime=horaCurta(q.regularMarketTime);
     if(!a.nome) a.nome=q.longName||q.shortName||"";
   }
-  function applyDividends(a, q){
-    if(a.divFonte==="manual") return;
-    if(!q || !q.dividendsData || !q.dividendsData.cashDividends) return;
-    var r=computeMedia(q.dividendsData.cashDividends);
-    if(r && r.media>0){ a.mediaDividendos=round2(r.media); a.divFonte="auto"; a.divInfo=r.info; }
-  }
 
-  // Busca resiliente de 1 ticker: cotação é essencial; dividendos é "extra".
-  // IMPORTANTE: NÃO concluir "token inválido" só porque dividends=true falhou —
-  // no plano grátis o dividends=true pode dar 403 mesmo com token válido.
-  // Só consideramos token inválido se a cotação SEM dividendos também der 401/403.
-  var divBlocked = false; // uma vez detectado plano sem dividendos, para de tentar
-  function fetchPlain(ticker){
-    return getJSON(url(ticker, false)).then(function(r2){
-      var q2=priceOf(r2);
-      if(r2.ok && q2) return { q:q2, gotDiv:false };
-      if(r2.status===401||r2.status===403) throw new Error("AUTH");
-      if(r2.status===429) throw new Error("RATE");
-      throw new Error("NODATA");
-    });
-  }
+  // cotação de 1 ticker (brapi). Resolve {q} ou rejeita AUTH/RATE/NODATA/rede.
   function fetchTicker(ticker){
-    if(divBlocked) return fetchPlain(ticker);
-    return getJSON(url(ticker, true)).then(function(res){
-      if(res.status===429) throw new Error("RATE");
-      var q=priceOf(res);
-      if(res.ok && q) return { q:q, gotDiv:!!(q.dividendsData&&q.dividendsData.cashDividends) };
-      // dividends falhou (403 do plano, ou sem preço) → tenta SÓ a cotação
-      return getJSON(url(ticker, false)).then(function(r2){
-        var q2=priceOf(r2);
-        if(r2.ok && q2){ divBlocked=true; return { q:q2, gotDiv:false }; } // token OK, plano sem dividendos
-        if(r2.status===401||r2.status===403) throw new Error("AUTH");
-        if(r2.status===429) throw new Error("RATE");
-        throw new Error("NODATA");
-      });
+    return getJSON(url(ticker)).then(function(r){
+      var q=priceOf(r);
+      if(r.ok && q) return { q:q };
+      if(r.status===401||r.status===403) throw new Error("AUTH");
+      if(r.status===429) throw new Error("RATE");
+      throw new Error("NODATA");
     });
   }
   function errText(e){
     if(e&&e.message==="AUTH") return "Token inválido. Confira em ⚙ Token.";
     if(e&&e.message==="RATE") return "Limite de requisições atingido. Aguarde alguns minutos.";
-    if(e&&e.message==="NODATA") return "código inválido ou fora do plano";
+    if(e&&e.message==="NODATA") return "código inválido ou sem cotação";
     return netMsg(e);
   }
 
@@ -374,11 +310,10 @@
     if(isUser) setStatus('<span class="spin"></span> Buscando '+ticker+'...', "info");
     return fetchTicker(ticker).then(function(out){
       var a=findAcao(ticker); if(!a) return;
-      applyQuote(a, out.q); if(out.gotDiv) applyDividends(a, out.q);
-      state.ultima=agora(); save(); render();
+      applyQuote(a, out.q); state.ultima=agora(); save(); render();
       if(isUser){
-        if(out.gotDiv && a.divInfo) setStatus(ticker+" ✓ cotação + dividendos.", "ok");
-        else setStatus(ticker+" ✓ cotação. Dividendos não vieram (plano grátis pode não incluir) — digite a média na mão.", "info");
+        if(a.mediaDividendos>0) setStatus(ticker+" ✓ cotação atualizada.", "ok");
+        else setStatus(ticker+" ✓ cotação. Agora digite a média de dividendos pra calcular o Preço Justo.", "info");
       }
     }).catch(function(e){
       if(isUser) setStatus(ticker+": "+errText(e), "err");
@@ -387,31 +322,28 @@
 
   function refreshAll(silent){
     if(!state.acoes.length) return;
-    if(!state.token){ if(!silent) setStatus("Sem token — toque em ⚙ Token para ativar a busca automática.", "err"); return; }
-    divBlocked=false; // re-testa dividendos a cada atualização
-    var list=state.acoes.slice(), i=0, ok=0, divs=0, faltou=[], fatal=null;
+    if(!state.token){ if(!silent) setStatus("Sem token — toque em ⚙ Token para ativar a cotação automática.", "err"); return; }
+    var list=state.acoes.slice(), i=0, ok=0, faltou=[], fatal=null;
     function step(){
       if(fatal || i>=list.length){ finish(); return; }
       var t=list[i++].ticker;
       setStatus('<span class="spin"></span> Atualizando '+i+'/'+list.length+' ('+t+')...', "info");
       fetchTicker(t).then(function(out){
-        var a=findAcao(t); if(a){ applyQuote(a,out.q); ok++; if(out.gotDiv){ applyDividends(a,out.q); if(a.divFonte==="auto") divs++; } }
-        save();
+        var a=findAcao(t); if(a){ applyQuote(a,out.q); ok++; }
       }).catch(function(e){
         if(e&&(e.message==="AUTH"||e.message==="RATE")) fatal=errText(e);
         else if(e&&e.message==="NODATA") faltou.push(t);
-        else fatal=netMsg(e); // erro de rede: para tudo (problema é geral)
-      }).then(function(){ render(); step(); });
+        else fatal=netMsg(e);
+      }).then(function(){ save(); render(); step(); });
     }
     function finish(){
       state.ultima=agora(); save(); render();
       if(fatal){ setStatus(fatal, "err"); return; }
       if(ok===0){ setStatus("Nenhuma cotação retornada. Rode o 🔍 Diagnóstico.", "err"); return; }
-      var msg="Atualizado "+ok+"/"+list.length;
-      if(divs>0) msg+=" · dividendos em "+divs;
-      else msg+=" · sem dividendos (plano grátis pode não incluir — edite a média na mão)";
-      if(faltou.length) msg+=" · sem dados: "+faltou.join(", ");
-      setStatus(msg, divs>0?"ok":"info");
+      var msg="Cotações atualizadas: "+ok+"/"+list.length;
+      if(faltou.length) msg+=" · sem cotação: "+faltou.join(", ");
+      setStatus(msg, faltou.length?"info":"ok");
+      if(!faltou.length) setTimeout(function(){ setStatus(""); }, 3500);
     }
     step();
   }
@@ -420,7 +352,7 @@
     var raw=($("newTicker").value||"").trim().toUpperCase().replace(/[^A-Z0-9]/g,"");
     if(!raw){ setStatus("Digite um código (ex: TAEE11).", "err"); return; }
     if(findAcao(raw)){ setStatus(raw+" já está na carteira.", "err"); return; }
-    state.acoes.push({ ticker:raw, nome:"", setor:"", cotacao:0, mediaDividendos:0, observacao:"", auto:false, qTime:null, divFonte:"", divInfo:"" });
+    state.acoes.push({ ticker:raw, nome:"", setor:"", cotacao:0, mediaDividendos:0, observacao:"", auto:false, qTime:null });
     $("newTicker").value=""; save(); render();
     fetchOne(raw, true);
   }
@@ -429,38 +361,29 @@
   function diagRun(){
     var box=$("diagbox");
     box.innerHTML='<span class="wait">⏳ Testando conexão (PETR4, sem token)...</span>';
-    // PETR4 é liberada sem token: testa rede/CORS puro
-    fetch(BASE+"PETR4?dividends=true", {cache:"no-store"}).then(function(r){ return r.json().then(function(j){ return {ok:r.ok,status:r.status,json:j}; }); })
+    fetch(BASE+"PETR4", {cache:"no-store"}).then(function(r){ return r.json().then(function(j){ return {ok:r.ok,status:r.status,json:j}; }); })
     .then(function(res){
       var q=res.json&&res.json.results&&res.json.results[0];
       var hasPrice=q&&typeof q.regularMarketPrice==="number";
-      var hasDiv=q&&q.dividendsData&&q.dividendsData.cashDividends&&q.dividendsData.cashDividends.length;
-      var out="";
-      if(hasPrice){
-        out+='<div class="ok">✓ Conexão com a brapi OK (PETR4 = R$ '+q.regularMarketPrice.toFixed(2)+').</div>';
-        out+='<div class="'+(hasDiv?"ok":"bad")+'">'+(hasDiv?"✓":"✕")+' Dividendos no teste: '+(hasDiv?(q.dividendsData.cashDividends.length+" registros."):"não vieram.")+'</div>';
-        if(!state.token){ out+='<div class="bad">✕ Falta o seu token — toque em ⚙ Token. (a conexão está boa)</div>'; box.innerHTML=out; return; }
-        // testa um ticker seu
-        var t=state.acoes.length?state.acoes[0].ticker:"ITSA4";
-        box.innerHTML=out+'<div class="wait">⏳ Testando '+t+' com seu token...</div>';
-        fetchTicker(t).then(function(o){
-          var m=saved+'<div class="ok">✓ '+t+' = R$ '+o.q.regularMarketPrice.toFixed(2)+' com seu token.</div>';
-          var gd=o.gotDiv&&o.q.dividendsData&&o.q.dividendsData.cashDividends&&o.q.dividendsData.cashDividends.length;
-          m+='<div class="'+(gd?"ok":"bad")+'">'+(gd?("✓ Dividendos do "+t+": "+o.q.dividendsData.cashDividends.length+" registros. Tudo certo!"):"✕ Cotação OK, mas o seu plano NÃO trouxe dividendos. Use a média manual ou troque a fonte.")+'</div>';
-          box.innerHTML=m;
-        }).catch(function(e){
-          var m=saved+'<div class="bad">✕ '+t+' falhou: '+esc(errText(e))+'</div>';
-          if(e&&e.message==="AUTH") m+='<div class="bad">→ Token errado. Copie de novo em brapi.dev/dashboard.</div>';
-          box.innerHTML=m;
-        });
-      } else {
-        box.innerHTML='<div class="bad">✕ A brapi respondeu, mas sem cotação (HTTP '+res.status+'). Pode ser instabilidade do serviço — tente de novo em instantes.</div>';
-      }
+      if(!hasPrice){ box.innerHTML='<div class="bad">✕ A brapi respondeu, mas sem cotação (HTTP '+res.status+'). Tente de novo em instantes.</div>'; return; }
+      var out='<div class="ok">✓ Conexão com a brapi OK — PETR4 = R$ '+q.regularMarketPrice.toFixed(2)+'.</div>';
+      if(!state.token){ box.innerHTML=out+'<div class="bad">✕ Falta o seu token — toque em ⚙ Token. (a conexão está boa)</div>'; return; }
+      var t=state.acoes.length?state.acoes[0].ticker:"ITSA4";
+      box.innerHTML=out+'<div class="wait">⏳ Testando '+t+' com seu token...</div>';
+      var saved=out;
+      fetchTicker(t).then(function(o){
+        box.innerHTML=saved+'<div class="ok">✓ '+t+' = R$ '+o.q.regularMarketPrice.toFixed(2)+' com seu token. Cotação automática funcionando!</div>'+
+          '<div class="wait">ℹ Dividendos: não há fonte grátis no navegador — a média é digitada na mão (muda ~1x por ano).</div>';
+      }).catch(function(e){
+        var m=saved+'<div class="bad">✕ '+t+' falhou: '+esc(errText(e))+'</div>';
+        if(e&&e.message==="AUTH") m+='<div class="bad">→ Token errado. Copie de novo em brapi.dev/dashboard.</div>';
+        box.innerHTML=m;
+      });
     })
-    .catch(function(e){
+    .catch(function(){
       box.innerHTML='<div class="bad">✕ Não consegui nem conectar à brapi.</div>'+
         '<div style="margin-top:8px;color:#cbd5e1;">Causa quase certa: o app foi aberto como <strong>arquivo local</strong> (prévia do OneDrive/Arquivos), e o iPhone bloqueia a internet nesse modo.</div>'+
-        '<div style="margin-top:8px;color:#cbd5e1;">Solução: publique o arquivo num <strong>link (URL)</strong> e abra por lá no Safari → "Adicionar à Tela de Início".</div>';
+        '<div style="margin-top:8px;color:#cbd5e1;">Solução: abra por um <strong>link (URL)</strong> no Safari → "Adicionar à Tela de Início".</div>';
     });
   }
 
@@ -497,7 +420,7 @@
   // ---------- init ----------
   load(); render();
   if(state.token) refreshAll(false);
-  else { setStatus("Toque em ⚙ Token para ativar a busca automática (cadastro grátis).", "info"); setTimeout(function(){ try{ dlg.showModal(); }catch(e){} }, 400); }
+  else { setStatus("Toque em ⚙ Token para ativar a cotação automática (cadastro grátis).", "info"); setTimeout(function(){ try{ dlg.showModal(); }catch(e){} }, 400); }
 })();
 </script>
 </body>
