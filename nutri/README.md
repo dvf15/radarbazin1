@@ -23,6 +23,21 @@ npm run dev                   # http://localhost:3000
 > A `ANTHROPIC_API_KEY` (começa com `sk-ant-`) vem do console.anthropic.com e
 > fica no `.env` (nunca é exposta ao navegador — a IA é chamada no servidor).
 
+## Usar no celular (mesma rede Wi‑Fi)
+
+O `npm run dev` já sobe o servidor escutando na rede (`-H 0.0.0.0`). Para abrir no
+celular:
+
+1. No computador, descubra o IP local:
+   - **Windows:** `ipconfig` → "Endereço IPv4" (ex.: `192.168.0.12`)
+   - **macOS/Linux:** `ipconfig getifaddr en0` ou `hostname -I`
+2. Deixe `npm run dev` rodando no computador.
+3. No celular (mesmo Wi‑Fi), abra `http://SEU_IP:3000` (ex.: `http://192.168.0.12:3000`).
+4. Menu do navegador → **"Adicionar à Tela de Início"** → vira um app com ícone.
+
+> O computador precisa estar ligado e na mesma rede — o celular é só a "tela".
+> Para usar fora de casa, faça o deploy (Postgres + Vercel); veja o fim deste README.
+
 ## Estrutura
 
 ```

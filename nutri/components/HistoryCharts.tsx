@@ -29,15 +29,15 @@ interface Row {
   closed: boolean;
 }
 
-const COLORS = { kcal: "#7C3AED", protein: "#16A34A", carb: "#EA580C", fat: "#DC2626", meta: "#cbd5e1" };
+const COLORS = { kcal: "#a78bfa", protein: "#34d399", carb: "#fb923c", fat: "#f87171", meta: "#334155" };
 const tooltipStyle = {
-  background: "#ffffff",
-  border: "1px solid #e2e8f0",
+  background: "#0f172a",
+  border: "1px solid #1e293b",
   borderRadius: 8,
   fontSize: 12,
-  color: "#0f172a",
+  color: "#e2e8f0",
 };
-const axisTick = { fontSize: 10, fill: "#94a3b8" };
+const axisTick = { fontSize: 10, fill: "#64748b" };
 
 export default function HistoryCharts() {
   const [days, setDays] = useState(14);
@@ -77,7 +77,7 @@ export default function HistoryCharts() {
             key={d}
             onClick={() => setDays(d)}
             className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
-              days === d ? "bg-blue-600 text-white" : "border border-slate-200 bg-white text-slate-600"
+              days === d ? "bg-blue-600 text-white" : "border border-slate-700 bg-slate-800 text-slate-300"
             }`}
           >
             {d}d
@@ -86,21 +86,21 @@ export default function HistoryCharts() {
       </div>
 
       {loading ? (
-        <div className="py-8 text-center text-sm text-slate-400">Carregando...</div>
+        <div className="py-8 text-center text-sm text-slate-500">Carregando...</div>
       ) : rows.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-400 shadow-sm">
+        <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 text-center text-sm text-slate-500">
           Sem dias registrados ainda.
         </div>
       ) : (
         <>
-          <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-            <div className="mb-2 text-xs font-bold uppercase text-slate-500">Calorias vs meta</div>
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-3">
+            <div className="mb-2 text-xs font-bold uppercase text-slate-300">Calorias vs meta</div>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={rows}>
-                <CartesianGrid stroke="#eef2f7" vertical={false} />
+                <CartesianGrid stroke="#1e293b" vertical={false} />
                 <XAxis dataKey="label" tick={axisTick} />
                 <YAxis tick={axisTick} width={36} />
-                <Tooltip contentStyle={tooltipStyle} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#1e293b55" }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Bar dataKey="kcal" fill={COLORS.kcal} radius={[4, 4, 0, 0]} name="Realizado" />
                 <Bar dataKey="meta_kcal" fill={COLORS.meta} radius={[4, 4, 0, 0]} name="Meta" />
@@ -108,11 +108,11 @@ export default function HistoryCharts() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-            <div className="mb-2 text-xs font-bold uppercase text-slate-500">Macros ao longo do tempo (g)</div>
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-3">
+            <div className="mb-2 text-xs font-bold uppercase text-slate-300">Macros ao longo do tempo (g)</div>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={rows}>
-                <CartesianGrid stroke="#eef2f7" vertical={false} />
+                <CartesianGrid stroke="#1e293b" vertical={false} />
                 <XAxis dataKey="label" tick={axisTick} />
                 <YAxis tick={axisTick} width={36} />
                 <Tooltip contentStyle={tooltipStyle} />
@@ -124,16 +124,16 @@ export default function HistoryCharts() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-            <div className="mb-2 text-xs font-bold uppercase text-slate-500">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-3">
+            <div className="mb-2 text-xs font-bold uppercase text-slate-300">
               Realizado vs meta por macro (média 7d)
             </div>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={macroCmp}>
-                <CartesianGrid stroke="#eef2f7" vertical={false} />
+                <CartesianGrid stroke="#1e293b" vertical={false} />
                 <XAxis dataKey="macro" tick={axisTick} />
                 <YAxis tick={axisTick} width={36} />
-                <Tooltip contentStyle={tooltipStyle} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#1e293b55" }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Bar dataKey="Realizado" fill={COLORS.protein} radius={[4, 4, 0, 0]} />
                 <Bar dataKey="Meta" fill={COLORS.meta} radius={[4, 4, 0, 0]} />
@@ -141,17 +141,17 @@ export default function HistoryCharts() {
             </ResponsiveContainer>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-            <div className="mb-2 text-xs font-bold uppercase text-slate-500">Dias</div>
-            <div className="divide-y divide-slate-100">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-3">
+            <div className="mb-2 text-xs font-bold uppercase text-slate-300">Dias</div>
+            <div className="divide-y divide-slate-800">
               {rows
                 .slice()
                 .reverse()
                 .map((r) => (
                   <div key={r.date} className="flex items-center justify-between py-2 text-sm">
                     <div>
-                      <span className="text-slate-700">{r.label}</span>{" "}
-                      <span className="text-[11px] text-slate-400">
+                      <span className="text-slate-200">{r.label}</span>{" "}
+                      <span className="text-[11px] text-slate-500">
                         {r.training_type}
                         {r.closed ? " · fechado" : ""}
                       </span>
@@ -160,7 +160,7 @@ export default function HistoryCharts() {
                       <span className="font-bold" style={{ color: COLORS.kcal }}>
                         {r.kcal}
                       </span>{" "}
-                      <span className="text-[11px] text-slate-400">
+                      <span className="text-[11px] text-slate-500">
                         P{r.protein_g}/C{r.carb_g}/G{r.fat_g}
                       </span>
                     </div>

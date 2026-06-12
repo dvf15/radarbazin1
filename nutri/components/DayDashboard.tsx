@@ -9,11 +9,12 @@ import MealCard from "./MealCard";
 import MealLogger from "./MealLogger";
 import TrainingSelector from "./TrainingSelector";
 
+// Cores por macro adaptadas para boa leitura no tema escuro.
 const COLORS = {
-  kcal: "#7C3AED",
-  protein: "#16A34A",
-  carb: "#EA580C",
-  fat: "#DC2626",
+  kcal: "#a78bfa",
+  protein: "#34d399",
+  carb: "#fb923c",
+  fat: "#f87171",
 };
 
 function todayKey() {
@@ -95,37 +96,37 @@ export default function DayDashboard() {
     <main className="mx-auto max-w-2xl p-4 pb-24">
       <header className="mb-4 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">NutriTreino</h1>
-          <p className="text-sm text-slate-500">Diário do Daniel</p>
+          <h1 className="text-2xl font-extrabold text-white">NutriTreino</h1>
+          <p className="text-sm text-slate-400">Diário do Daniel</p>
         </div>
         <Link
           href="/history"
-          className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm"
+          className="rounded-full border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-200"
         >
           📈 Histórico
         </Link>
       </header>
 
       {/* Data + treino */}
-      <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <div className="mb-4 rounded-2xl border border-slate-800 bg-slate-900 p-3">
         <div className="flex items-center justify-between gap-2">
           <button
             onClick={() => setDate(shift(date, -1))}
-            className="h-9 w-10 rounded-lg border border-slate-200 bg-white text-slate-600"
+            className="h-9 w-10 rounded-lg border border-slate-700 bg-slate-800 text-slate-300"
           >
             ‹
           </button>
-          <div className="flex-1 text-center text-sm font-bold text-slate-900">{labelFor(date)}</div>
+          <div className="flex-1 text-center text-sm font-bold text-white">{labelFor(date)}</div>
           <button
             onClick={() => !isToday && setDate(shift(date, 1))}
             disabled={isToday}
-            className="h-9 w-10 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40"
+            className="h-9 w-10 rounded-lg border border-slate-700 bg-slate-800 text-slate-300 disabled:opacity-40"
           >
             ›
           </button>
         </div>
         <div className="mt-3 flex items-center justify-between gap-2">
-          <span className="text-xs text-slate-500">Treino do dia</span>
+          <span className="text-xs text-slate-400">Treino do dia</span>
           <TrainingSelector
             value={day?.training_type ?? "rest"}
             onChange={setTraining}
@@ -146,12 +147,12 @@ export default function DayDashboard() {
 
       {/* Saldo */}
       {day && (
-        <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-3 text-sm shadow-sm">
+        <div className="mb-4 rounded-2xl border border-slate-800 bg-slate-900 p-3 text-sm">
           <div className="flex justify-between py-0.5">
-            <span className="text-slate-500">Restante até o teto</span>
-            <span className="font-bold text-slate-900">{Math.round(day.remaining.kcal)} kcal</span>
+            <span className="text-slate-400">Restante até o teto</span>
+            <span className="font-bold text-white">{Math.round(day.remaining.kcal)} kcal</span>
           </div>
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-slate-500">
             P {Math.round(day.remaining.protein_g)}g · C {Math.round(day.remaining.carb_g)}g · G{" "}
             {Math.round(day.remaining.fat_g)}g · meta {day.targets.kcal[0]}–{day.targets.kcal[1]} kcal
             ({TRAINING_LABELS[day.training_type]})
@@ -167,8 +168,8 @@ export default function DayDashboard() {
               key={i}
               className={`rounded-xl border px-3 py-2 text-sm ${
                 f.type === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-amber-200 bg-amber-50 text-amber-700"
+                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                  : "border-amber-500/40 bg-amber-500/10 text-amber-200"
               }`}
             >
               {f.message}
@@ -194,7 +195,7 @@ export default function DayDashboard() {
         <button
           onClick={() => setLogging(true)}
           disabled={!day}
-          className="mb-4 w-full rounded-2xl bg-emerald-600 py-4 text-base font-bold text-white shadow-sm disabled:opacity-50"
+          className="mb-4 w-full rounded-2xl bg-emerald-600 py-4 text-base font-bold text-white disabled:opacity-50"
         >
           + Registrar refeição
         </button>
@@ -203,12 +204,12 @@ export default function DayDashboard() {
       {/* Refeições */}
       <div className="space-y-2">
         {loading && !day && (
-          <div className="rounded-xl border border-slate-200 bg-white p-4 text-center text-sm text-slate-400">
+          <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 text-center text-sm text-slate-500">
             Carregando...
           </div>
         )}
         {day && day.meals.length === 0 && (
-          <div className="rounded-xl border border-slate-200 bg-white p-4 text-center text-sm text-slate-400">
+          <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 text-center text-sm text-slate-500">
             Nenhuma refeição registrada neste dia.
           </div>
         )}
@@ -221,9 +222,9 @@ export default function DayDashboard() {
       {day && day.meals.length >= 3 && (
         <button
           onClick={closeDay}
-          className={`mt-4 w-full rounded-2xl py-3 text-sm font-bold shadow-sm ${
+          className={`mt-4 w-full rounded-2xl py-3 text-sm font-bold ${
             day.closed
-              ? "border border-slate-200 bg-white text-slate-600"
+              ? "border border-slate-700 bg-slate-800 text-slate-200"
               : "bg-blue-600 text-white"
           }`}
         >
@@ -232,7 +233,7 @@ export default function DayDashboard() {
       )}
 
       {toast && (
-        <div className="fixed inset-x-0 bottom-6 mx-auto w-fit rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-lg">
+        <div className="fixed inset-x-0 bottom-6 mx-auto w-fit rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg">
           {toast}
         </div>
       )}

@@ -27,7 +27,7 @@ export default function EstimateResult({
         inputMode="numeric"
         value={value[k]}
         onChange={(e) => set(k, Math.round(Number(e.target.value) || 0))}
-        className="w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-center text-slate-900 outline-none"
+        className="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-2 text-center text-white outline-none"
       />
     </div>
   );
@@ -35,12 +35,12 @@ export default function EstimateResult({
   const conf = value.confidence;
 
   return (
-    <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+    <div className="mt-3 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
       <div className="flex items-center justify-between gap-2">
-        <div className="text-sm font-bold text-slate-900">{value.description}</div>
+        <div className="text-sm font-bold text-white">{value.description}</div>
         <span
           className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-            conf >= 7 ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+            conf >= 7 ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"
           }`}
         >
           confiança {conf}/10
@@ -63,8 +63,8 @@ export default function EstimateResult({
                 key={f}
                 className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                   m?.tone === "good"
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-rose-100 text-rose-700"
+                    ? "bg-emerald-500/15 text-emerald-300"
+                    : "bg-rose-500/15 text-rose-300"
                 }`}
               >
                 {m?.label || f}
@@ -77,7 +77,7 @@ export default function EstimateResult({
       {value.uncertainties.length > 0 && (
         <ul className="mt-3 space-y-1">
           {value.uncertainties.map((u, i) => (
-            <li key={i} className="text-[11px] text-slate-500">
+            <li key={i} className="text-[11px] text-slate-400">
               🔍 {u}
             </li>
           ))}
@@ -87,7 +87,7 @@ export default function EstimateResult({
       {value.questions.length > 0 && (
         <ul className="mt-2 space-y-1">
           {value.questions.map((q, i) => (
-            <li key={i} className="text-[11px] text-blue-600">
+            <li key={i} className="text-[11px] text-blue-300">
               ❓ {q}
             </li>
           ))}
@@ -105,7 +105,7 @@ export default function EstimateResult({
         <button
           disabled={saving}
           onClick={onDiscard}
-          className="rounded-xl border border-slate-300 bg-white py-3 text-sm font-bold text-slate-600 disabled:opacity-50"
+          className="rounded-xl border border-slate-700 bg-slate-800 py-3 text-sm font-bold text-slate-200 disabled:opacity-50"
         >
           Descartar
         </button>
