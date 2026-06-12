@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NutriTreino">
+<meta name="theme-color" content="#020617">
+<title>NutriTreino — Calorias por foto</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23020617'/%3E%3Ctext x='50' y='70' font-size='56' text-anchor='middle' fill='%2334d399' font-family='sans-serif' font-weight='bold'%3EN%3C/text%3E%3C/svg%3E">
+<style>
+  :root{ color-scheme: dark; }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body{ margin:0; background:#020617; color:#e2e8f0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; padding:16px; padding-bottom:48px; }
+  .wrap{ max-width:640px; margin:0 auto; }
+  h1{ font-size:24px; font-weight:800; color:#fff; margin:0 0 2px; }
+  .sub{ font-size:13px; color:#94a3b8; margin:0; }
+  .card{ background:#0f172a; border:1px solid #1e293b; border-radius:14px; padding:16px; margin-bottom:14px; }
+  .lblsec{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; font-weight:700; margin-bottom:12px; }
+  .lbl{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:#64748b; display:block; margin-bottom:5px; font-weight:600; }
+  input,select,textarea{ width:100%; background:#1e293b; border:1px solid #334155; border-radius:10px; padding:10px 12px; color:#fff; font-size:16px; outline:none; font-family:inherit; }
+  input:focus,select:focus,textarea:focus{ border-color:#3b82f6; }
+  textarea{ resize:vertical; min-height:64px; line-height:1.4; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .hint{ font-size:10px; color:#64748b; margin-top:4px; }
+  .row{ display:flex; justify-content:space-between; align-items:center; padding:4px 0; font-size:14px; }
+  .row .k{ color:#94a3b8; } .row .v{ color:#fff; font-weight:700; }
+  button{ border:none; border-radius:12px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; width:100%; }
+  .btn-blue{ background:#2563eb; color:#fff; }
+  .btn-green{ background:#059669; color:#fff; }
+  .btn-gray{ background:#1e293b; color:#e2e8f0; border:1px solid #334155; }
+  .btn-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+  .pill{ display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 10px; border-radius:99px; background:#1e293b; color:#cbd5e1; cursor:pointer; }
+  .spin{ display:inline-block; width:13px; height:13px; border:2px solid #334155; border-top-color:#60a5fa; border-radius:50%; animation:s .7s linear infinite; vertical-align:-2px; }
+  @keyframes s{ to{ transform:rotate(360deg); } }
+  .statusline{ font-size:13px; margin:6px 0 14px; min-height:16px; line-height:1.5; }
+  dialog{ background:#0f172a; color:#e2e8f0; border:1px solid #1e293b; border-radius:16px; max-width:90vw; width:460px; padding:20px; }
+  dialog::backdrop{ background:rgba(0,0,0,.6); }
+  a, .linklike{ color:#60a5fa; cursor:pointer; }
+  .datenav{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .datenav .dlabel{ font-weight:700; color:#fff; font-size:15px; text-align:center; flex:1; }
+  .navbtn{ width:42px; height:38px; padding:0; font-size:18px; background:#1e293b; border:1px solid #334155; color:#cbd5e1; border-radius:10px; flex:0 0 auto; }
+  .today-btn{ width:auto; padding:8px 14px; font-size:13px; }
+  .big{ font-size:30px; font-weight:800; color:#fff; line-height:1; }
+  .biglbl{ font-size:11px; color:#94a3b8; margin-top:4px; }
+  .threecol{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; text-align:center; margin-bottom:14px; }
+  .threecol .c{ background:rgba(2,6,23,.45); border-radius:10px; padding:12px 6px; }
+  .threecol .n{ font-size:20px; font-weight:800; }
+  .threecol .l{ font-size:10px; color:#94a3b8; margin-top:3px; text-transform:uppercase; letter-spacing:.04em; }
+  .t-green{ color:#34d399; } .t-amber{ color:#fbbf24; } .t-red{ color:#fb7185; } .t-blue{ color:#60a5fa; } .t-slate{ color:#94a3b8; }
+  .bar{ height:12px; background:#1e293b; border-radius:99px; overflow:hidden; margin-top:6px; }
+  .barfill{ height:100%; border-radius:99px; transition:width .4s; }
+  .preview{ width:100%; max-height:240px; object-fit:contain; border-radius:10px; margin-top:12px; background:#020617; border:1px solid #1e293b; display:none; }
+  .resbox{ background:rgba(2,6,23,.5); border:1px solid #334155; border-radius:10px; padding:12px; margin-top:12px; }
+  .resbox .title{ font-size:14px; font-weight:700; color:#fff; margin-bottom:8px; }
+  .entry{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; padding:10px 0; border-top:1px solid #1e293b; }
+  .entry:first-child{ border-top:none; }
+  .entry .nm{ font-size:14px; color:#e2e8f0; font-weight:600; }
+  .entry .meta{ font-size:11px; color:#64748b; margin-top:2px; }
+  .entry .cal{ font-size:15px; font-weight:800; white-space:nowrap; }
+  .rm{ background:rgba(2,6,23,.5); color:#94a3b8; border:1px solid #334155; border-radius:8px; width:28px; height:28px; padding:0; font-size:15px; line-height:1; flex:0 0 auto; }
+  .empty{ text-align:center; color:#64748b; font-size:13px; padding:8px 0; }
+  .chart{ display:flex; align-items:flex-end; gap:4px; height:120px; margin-top:6px; }
+  .chart .col{ flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; height:100%; }
+  .chart .colbar{ width:100%; border-radius:4px 4px 0 0; min-height:2px; background:#334155; }
+  .chart .colday{ font-size:8px; color:#64748b; }
+  .macro{ display:flex; gap:14px; font-size:11px; color:#94a3b8; margin-top:8px; flex-wrap:wrap; }
+  .footer{ font-size:12px; color:#94a3b8; line-height:1.6; }
+  .footer strong{ color:#cbd5e1; }
+  .warn{ font-size:11px; color:#64748b; border-top:1px solid #1e293b; padding-top:10px; margin-top:10px; }
+  .tag{ font-size:10px; padding:2px 8px; border-radius:99px; background:rgba(2,6,23,.5); font-weight:700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+    <div>
+      <h1>NutriTreino</h1>
+      <p class="sub">Foto do prato + treino → calorias do dia</p>
+    </div>
+    <span class="pill" id="settingsBtn">⚙ Ajustes</span>
+  </div>
+
+  <div class="statusline" id="status"></div>
+
+  <!-- Navegação de data -->
+  <div class="card">
+    <div class="datenav">
+      <button class="navbtn" id="prevDay">‹</button>
+      <div class="dlabel" id="dateLabel"></div>
+      <button class="navbtn" id="nextDay">›</button>
+    </div>
+    <div style="text-align:center;margin-top:10px;">
+      <button class="btn-gray today-btn" id="todayBtn" style="display:inline-block;">Hoje</button>
+    </div>
+  </div>
+
+  <!-- Resumo do dia -->
+  <div class="card">
+    <div class="threecol">
+      <div class="c"><div class="n t-amber" id="sumIn">0</div><div class="l">Consumidas</div></div>
+      <div class="c"><div class="n t-green" id="sumOut">0</div><div class="l">Queimadas</div></div>
+      <div class="c"><div class="n t-blue" id="sumNet">0</div><div class="l">Líquido</div></div>
+    </div>
+    <div class="row"><span class="k">Meta diária</span><span class="v" id="sumGoal">—</span></div>
+    <div class="row"><span class="k" id="remLbl">Restante</span><span class="v" id="sumRem">—</span></div>
+    <div class="bar"><div class="barfill" id="barFill" style="width:0%;background:#34d399;"></div></div>
+    <div class="hint" id="barHint"></div>
+  </div>
+
+  <!-- Adicionar alimento por foto -->
+  <div class="card">
+    <div class="lblsec">🍽️ Adicionar alimento (foto)</div>
+    <input id="photoInput" type="file" accept="image/*" capture="environment" style="display:none;">
+    <button class="btn-gray" id="pickPhoto">📷 Tirar / escolher foto</button>
+    <div class="hint">Dica: você também pode <strong>colar</strong> (Ctrl+V) uma foto copiada.</div>
+    <img id="photoPreview" class="preview" alt="prévia">
+    <div style="margin-top:12px;">
+      <span class="lbl">Descrição (opcional — ajuda na estimativa)</span>
+      <input id="foodDesc" type="text" placeholder="ex: prato grande, ~200g de arroz, refrigerante lata" autocomplete="off">
+    </div>
+    <button class="btn-green" id="analyzeFood" style="margin-top:12px;" disabled>Analisar foto</button>
+    <div id="foodResult"></div>
+  </div>
+
+  <!-- Adicionar treino por texto -->
+  <div class="card">
+    <div class="lblsec">🏋️ Adicionar treino (texto)</div>
+    <textarea id="workoutDesc" placeholder="ex: 45 min de corrida a 8 km/h, depois 30 min de musculação"></textarea>
+    <button class="btn-blue" id="analyzeWorkout" style="margin-top:12px;">Analisar treino</button>
+    <div id="workoutResult"></div>
+  </div>
+
+  <!-- Diário do dia -->
+  <div class="card">
+    <div class="lblsec">📒 Diário do dia</div>
+    <div id="diary"></div>
+  </div>
+
+  <!-- Histórico -->
+  <div class="card">
+    <div class="lblsec">📈 Líquido (kcal) — últimos 14 dias</div>
+    <div class="chart" id="chart"></div>
+    <div class="hint" id="chartHint" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="card footer">
+    <div style="font-weight:700;color:#cbd5e1;margin-bottom:6px;">Como usar:</div>
+    <div>1. Toque em <strong>⚙ Ajustes</strong> e cole sua chave da API da Anthropic (console.anthropic.com), defina sua meta de calorias e seu peso.</div>
+    <div>2. Em cada refeição, tire/escolha/cole a foto do prato e toque em <strong>Analisar foto</strong>. A IA estima alimentos e calorias.</div>
+    <div>3. Descreva seus treinos em texto e toque em <strong>Analisar treino</strong> para estimar as calorias queimadas.</div>
+    <div>4. O resumo do dia e o histórico são somados automaticamente. Tudo fica salvo só neste aparelho.</div>
+    <div>5. No celular: menu do navegador → <strong>"Adicionar à Tela de Início"</strong> para virar app com ícone.</div>
+    <div class="warn"><strong>Privacidade & precisão:</strong> a chave da API e seus dados ficam apenas neste dispositivo (localStorage). A chave é usada direto do navegador — não use em aparelhos compartilhados. As calorias são <strong>estimativas</strong> de IA, não medições exatas; use como referência, não como verdade absoluta.</div>
+  </div>
+</div>
+
+<dialog id="settingsDlg">
+  <div style="font-weight:800;font-size:17px;color:#fff;margin-bottom:8px;">Ajustes</div>
+  <div style="font-size:13px;color:#94a3b8;line-height:1.55;margin-bottom:14px;">
+    Crie uma chave em <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> (começa com <code>sk-ant-</code>). Fica salva só neste aparelho.
+  </div>
+  <span class="lbl">Chave da API (Anthropic)</span>
+  <input id="keyInput" type="password" placeholder="sk-ant-..." autocomplete="off" style="margin-bottom:12px;">
+  <div class="grid2" style="margin-bottom:12px;">
+    <div>
+      <span class="lbl">Meta de calorias/dia</span>
+      <input id="goalInput" type="number" inputmode="numeric" placeholder="2000">
+    </div>
+    <div>
+      <span class="lbl">Seu peso (kg)</span>
+      <input id="pesoInput" type="number" inputmode="decimal" placeholder="ex: 75">
+    </div>
+  </div>
+  <span class="lbl">Modelo de IA</span>
+  <select id="modelInput" style="margin-bottom:6px;">
+    <option value="claude-opus-4-8">Opus 4.8 — mais preciso (recomendado)</option>
+    <option value="claude-sonnet-4-6">Sonnet 4.6 — equilíbrio</option>
+    <option value="claude-haiku-4-5">Haiku 4.5 — mais rápido/barato</option>
+  </select>
+  <div class="hint" style="margin-bottom:14px;">Opus dá as melhores estimativas; Haiku é mais econômico para muitas fotos.</div>
+  <div class="btn-row" style="margin-top:0;">
+    <button class="btn-blue" id="saveSettings">Salvar</button>
+    <button class="btn-gray" id="closeSettings">Fechar</button>
+  </div>
+</dialog>
+
+<script>
+(function(){
+  "use strict";
+  var STORE="nutritreino-v1";
+  var API="https://api.anthropic.com/v1/messages";
+
+  var state={ apiKey:"", model:"claude-opus-4-8", goal:2000, peso:null, days:{} };
+  var viewDate=new Date();
+  var pendingPhoto=null;   // { media_type, data, dataUrl }
+  var pendingFood=null;    // resultado IA aguardando confirmação
+  var pendingWorkout=null;
+
+  var $=function(id){ return document.getElementById(id); };
+  function num(v,fb){ var n=parseFloat(String(v).replace(",",".")); return isNaN(n)?fb:n; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function dayKey(d){ return d.toLocaleDateString('en-CA'); } // YYYY-MM-DD
+
+  // ---------- persistência ----------
+  function load(){
+    try{
+      var raw=localStorage.getItem(STORE);
+      if(raw){
+        var d=JSON.parse(raw);
+        state.apiKey=d.apiKey||"";
+        state.model=d.model||"claude-opus-4-8";
+        state.goal=num(d.goal,2000);
+        state.peso=(d.peso!=null && d.peso!=="")?num(d.peso,null):null;
+        state.days=(d.days&&typeof d.days==="object")?d.days:{};
+      }
+    }catch(e){}
+  }
+  function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+  function dayData(key){
+    if(!state.days[key]) state.days[key]={ food:[], workout:[] };
+    if(!state.days[key].food) state.days[key].food=[];
+    if(!state.days[key].workout) state.days[key].workout=[];
+    return state.days[key];
+  }
+
+  // ---------- status ----------
+  function setStatus(msg,kind){
+    var el=$("status"); if(!msg){ el.innerHTML=""; return; }
+    var color=kind==="err"?"#fb7185":kind==="ok"?"#34d399":"#94a3b8";
+    el.innerHTML='<span style="color:'+color+'">'+msg+'</span>';
+  }
+
+  // ---------- chamada à API Claude ----------
+  function callClaude(opts){
+    if(!state.apiKey) return Promise.reject(new Error("Sem chave da API — toque em ⚙ Ajustes."));
+    var body={ model:state.model, max_tokens:opts.maxTokens||1200, messages:opts.messages };
+    if(opts.system) body.system=opts.system;
+    if(opts.schema) body.output_config={ format:{ type:"json_schema", schema:opts.schema } };
+    return fetch(API,{
+      method:"POST",
+      headers:{
+        "content-type":"application/json",
+        "x-api-key":state.apiKey,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify(body)
+    }).then(function(r){
+      return r.json().catch(function(){ return null; }).then(function(j){
+        if(!r.ok){
+          var m=(j&&j.error&&j.error.message)||("Erro HTTP "+r.status);
+          if(r.status===401) m="Chave da API inválida. Confira em ⚙ Ajustes.";
+          if(r.status===429) m="Limite de requisições atingido. Aguarde um pouco.";
+          throw new Error(m);
+        }
+        if(j&&j.stop_reason==="refusal") throw new Error("A IA não pôde analisar esta solicitação.");
+        var text=((j&&j.content)||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
+        return text;
+      });
+    });
+  }
+  function parseJSON(t){
+    try{ return JSON.parse(t); }catch(e){}
+    var s=t.indexOf("{"), e=t.lastIndexOf("}");
+    if(s>=0&&e>s){ try{ return JSON.parse(t.slice(s,e+1)); }catch(e2){} }
+    throw new Error("Não entendi a resposta da IA. Tente de novo.");
+  }
+
+  // ---------- redimensionar imagem ----------
+  function fileToPhoto(file, maxSide){
+    maxSide=maxSide||1024;
+    return new Promise(function(resolve,reject){
+      if(!file || !/^image\//.test(file.type)){ reject(new Error("Arquivo não é uma imagem.")); return; }
+      var img=new Image(), url=URL.createObjectURL(file);
+      img.onload=function(){
+        URL.revokeObjectURL(url);
+        var w=img.width, h=img.height, scale=Math.min(1, maxSide/Math.max(w,h));
+        var cw=Math.max(1,Math.round(w*scale)), ch=Math.max(1,Math.round(h*scale));
+        var canvas=document.createElement("canvas"); canvas.width=cw; canvas.height=ch;
+        canvas.getContext("2d").drawImage(img,0,0,cw,ch);
+        var dataUrl=canvas.toDataURL("image/jpeg",0.85);
+        resolve({ media_type:"image/jpeg", data:dataUrl.split(",")[1], dataUrl:dataUrl });
+      };
+      img.onerror=function(){ URL.revokeObjectURL(url); reject(new Error("Falha ao ler a imagem.")); };
+      img.src=url;
+    });
+  }
+
+  // ---------- schemas ----------
+  var FOOD_SCHEMA={
+    type:"object",
+    properties:{
+      itens:{ type:"array", items:{ type:"object",
+        properties:{
+          nome:{type:"string"}, quantidade:{type:"string"},
+          calorias:{type:"integer"},
+          proteina_g:{type:"number"}, carboidrato_g:{type:"number"}, gordura_g:{type:"number"}
+        },
+        required:["nome","quantidade","calorias","proteina_g","carboidrato_g","gordura_g"],
+        additionalProperties:false
+      }},
+      total_calorias:{type:"integer"},
+      confianca:{type:"string"},
+      observacao:{type:"string"}
+    },
+    required:["itens","total_calorias","confianca","observacao"],
+    additionalProperties:false
+  };
+  var WORKOUT_SCHEMA={
+    type:"object",
+    properties:{
+      atividade:{type:"string"},
+      duracao_min:{type:"integer"},
+      calorias_queimadas:{type:"integer"},
+      intensidade:{type:"string"},
+      observacao:{type:"string"}
+    },
+    required:["atividade","duracao_min","calorias_queimadas","intensidade","observacao"],
+    additionalProperties:false
+  };
+
+  // ---------- analisar alimento ----------
+  function analyzeFood(){
+    if(!pendingPhoto){ setStatus("Escolha uma foto primeiro.","err"); return; }
+    var desc=($("foodDesc").value||"").trim();
+    var btn=$("analyzeFood"); btn.disabled=true;
+    setStatus('<span class="spin"></span> Analisando a foto...','info');
+    var prompt="Analise esta foto de comida/bebida. Identifique cada alimento, estime a porção (quantidade) e as calorias de forma realista. "
+      + (desc?("Informação adicional do usuário: \""+desc+"\". "):"")
+      + "Some o total de calorias de todos os itens. Indique sua confiança como 'alta', 'média' ou 'baixa'. "
+      + "Se a imagem não tiver comida, retorne itens vazio, total 0 e explique na observação.";
+    var content=[
+      { type:"image", source:{ type:"base64", media_type:pendingPhoto.media_type, data:pendingPhoto.data } },
+      { type:"text", text:prompt }
+    ];
+    callClaude({
+      system:"Você é um nutricionista experiente. Responda sempre em português do Brasil com estimativas realistas de calorias e macronutrientes.",
+      messages:[{ role:"user", content:content }],
+      schema:FOOD_SCHEMA, maxTokens:1500
+    }).then(function(text){
+      pendingFood=parseJSON(text);
+      renderFoodResult();
+      setStatus("");
+    }).catch(function(e){
+      setStatus(e.message||"Erro ao analisar.","err");
+    }).then(function(){ btn.disabled=false; });
+  }
+
+  function renderFoodResult(){
+    var box=$("foodResult");
+    if(!pendingFood){ box.innerHTML=""; return; }
+    var f=pendingFood, itens=f.itens||[];
+    var rows=itens.map(function(it){
+      return '<div class="entry"><div><div class="nm">'+esc(it.nome)+'</div>'+
+        '<div class="meta">'+esc(it.quantidade||"")+' · P '+Math.round(it.proteina_g||0)+'g · C '+Math.round(it.carboidrato_g||0)+'g · G '+Math.round(it.gordura_g||0)+'g</div></div>'+
+        '<div class="cal t-amber">'+Math.round(it.calorias||0)+'</div></div>';
+    }).join("");
+    var confCls=f.confianca==="alta"?"t-green":f.confianca==="baixa"?"t-red":"t-amber";
+    box.innerHTML='<div class="resbox">'+
+      '<div class="title">Resultado <span class="tag '+confCls+'">confiança '+esc(f.confianca||"—")+'</span></div>'+
+      (rows||'<div class="empty">Nenhum alimento identificado.</div>')+
+      '<div class="row" style="border-top:1px solid #1e293b;margin-top:8px;padding-top:10px;"><span class="k">Total estimado</span><span class="v t-amber">'+Math.round(f.total_calorias||0)+' kcal</span></div>'+
+      (f.observacao?'<div class="meta" style="margin-top:8px;color:#94a3b8;">'+esc(f.observacao)+'</div>':'')+
+      '<div class="btn-row"><button class="btn-green" id="confirmFood">✓ Adicionar ao diário</button><button class="btn-gray" id="discardFood">Descartar</button></div>'+
+    '</div>';
+    $("confirmFood").addEventListener("click", confirmFood);
+    $("discardFood").addEventListener("click", function(){ pendingFood=null; renderFoodResult(); });
+  }
+
+  function confirmFood(){
+    if(!pendingFood) return;
+    var f=pendingFood, itens=f.itens||[];
+    var macro=itens.reduce(function(a,it){ a.p+=(it.proteina_g||0); a.c+=(it.carboidrato_g||0); a.g+=(it.gordura_g||0); return a; },{p:0,c:0,g:0});
+    var nomes=itens.map(function(it){return it.nome;}).filter(Boolean);
+    var d=dayData(dayKey(viewDate));
+    d.food.push({
+      id:uid(),
+      nomes:nomes.length?nomes:["Refeição"],
+      calorias:Math.round(f.total_calorias||0),
+      proteina:Math.round(macro.p), carbo:Math.round(macro.c), gordura:Math.round(macro.g),
+      hora:new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
+    });
+    save();
+    // limpa
+    pendingFood=null; pendingPhoto=null;
+    $("foodResult").innerHTML="";
+    $("foodDesc").value="";
+    var pv=$("photoPreview"); pv.style.display="none"; pv.src="";
+    $("analyzeFood").disabled=true;
+    renderAll();
+    setStatus("Refeição adicionada ✓","ok");
+    setTimeout(function(){ setStatus(""); },2500);
+  }
+
+  // ---------- analisar treino ----------
+  function analyzeWorkout(){
+    var desc=($("workoutDesc").value||"").trim();
+    if(!desc){ setStatus("Descreva o treino primeiro.","err"); return; }
+    var btn=$("analyzeWorkout"); btn.disabled=true;
+    setStatus('<span class="spin"></span> Estimando o gasto do treino...','info');
+    var peso=state.peso?(state.peso+" kg"):"não informado";
+    var prompt="Estime as calorias queimadas neste treino. Peso do usuário: "+peso+". "
+      + "Treino descrito: \""+desc+"\". Estime a duração total em minutos, a intensidade ('leve', 'moderada' ou 'intensa') e o gasto calórico realista.";
+    callClaude({
+      system:"Você é um educador físico. Responda sempre em português do Brasil com estimativas realistas de gasto calórico em treinos.",
+      messages:[{ role:"user", content:[{ type:"text", text:prompt }] }],
+      schema:WORKOUT_SCHEMA, maxTokens:700
+    }).then(function(text){
+      pendingWorkout=parseJSON(text);
+      renderWorkoutResult();
+      setStatus("");
+    }).catch(function(e){
+      setStatus(e.message||"Erro ao analisar.","err");
+    }).then(function(){ btn.disabled=false; });
+  }
+
+  function renderWorkoutResult(){
+    var box=$("workoutResult");
+    if(!pendingWorkout){ box.innerHTML=""; return; }
+    var w=pendingWorkout;
+    box.innerHTML='<div class="resbox">'+
+      '<div class="title">'+esc(w.atividade||"Treino")+'</div>'+
+      '<div class="row"><span class="k">Duração</span><span class="v">'+Math.round(w.duracao_min||0)+' min</span></div>'+
+      '<div class="row"><span class="k">Intensidade</span><span class="v">'+esc(w.intensidade||"—")+'</span></div>'+
+      '<div class="row"><span class="k">Calorias queimadas</span><span class="v t-green">'+Math.round(w.calorias_queimadas||0)+' kcal</span></div>'+
+      (w.observacao?'<div class="meta" style="margin-top:8px;color:#94a3b8;">'+esc(w.observacao)+'</div>':'')+
+      '<div class="btn-row"><button class="btn-green" id="confirmWorkout">✓ Adicionar ao diário</button><button class="btn-gray" id="discardWorkout">Descartar</button></div>'+
+    '</div>';
+    $("confirmWorkout").addEventListener("click", confirmWorkout);
+    $("discardWorkout").addEventListener("click", function(){ pendingWorkout=null; renderWorkoutResult(); });
+  }
+
+  function confirmWorkout(){
+    if(!pendingWorkout) return;
+    var w=pendingWorkout;
+    var d=dayData(dayKey(viewDate));
+    d.workout.push({
+      id:uid(),
+      atividade:w.atividade||"Treino",
+      calorias:Math.round(w.calorias_queimadas||0),
+      duracao:Math.round(w.duracao_min||0),
+      intensidade:w.intensidade||"",
+      hora:new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
+    });
+    save();
+    pendingWorkout=null;
+    $("workoutResult").innerHTML="";
+    $("workoutDesc").value="";
+    renderAll();
+    setStatus("Treino adicionado ✓","ok");
+    setTimeout(function(){ setStatus(""); },2500);
+  }
+
+  // ---------- totais ----------
+  function totalsFor(key){
+    var d=state.days[key]; if(!d) return { inn:0, out:0 };
+    var inn=(d.food||[]).reduce(function(a,e){return a+(e.calorias||0);},0);
+    var out=(d.workout||[]).reduce(function(a,e){return a+(e.calorias||0);},0);
+    return { inn:inn, out:out };
+  }
+
+  // ---------- render ----------
+  function renderHeader(){
+    var hoje=dayKey(new Date());
+    var k=dayKey(viewDate);
+    var label=viewDate.toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"long"});
+    if(k===hoje) label="Hoje · "+viewDate.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});
+    $("dateLabel").textContent=label.charAt(0).toUpperCase()+label.slice(1);
+    $("nextDay").disabled=(k>=hoje);
+    $("nextDay").style.opacity=(k>=hoje)?".4":"1";
+  }
+
+  function renderSummary(){
+    var t=totalsFor(dayKey(viewDate));
+    var net=t.inn-t.out;
+    $("sumIn").textContent=t.inn;
+    $("sumOut").textContent=t.out;
+    $("sumNet").textContent=net;
+    var goal=state.goal>0?state.goal:0;
+    $("sumGoal").textContent=goal?goal+" kcal":"defina nos ajustes";
+    var fill=$("barFill"), hint=$("barHint");
+    if(goal){
+      var rem=goal-net;
+      $("remLbl").textContent=rem>=0?"Restante":"Acima da meta";
+      $("sumRem").textContent=(rem>=0?rem:(-rem))+" kcal";
+      $("sumRem").className="v "+(rem>=0?"t-green":"t-red");
+      var pct=Math.max(0,Math.min(100,(net/goal)*100));
+      fill.style.width=pct+"%";
+      fill.style.background=(net>goal)?"#fb7185":(net>goal*0.85?"#fbbf24":"#34d399");
+      hint.textContent=Math.round((net/goal)*100)+"% da meta diária";
+    }else{
+      $("remLbl").textContent="Restante";
+      $("sumRem").textContent="—"; $("sumRem").className="v";
+      fill.style.width="0%"; hint.textContent="";
+    }
+  }
+
+  function renderDiary(){
+    var d=state.days[dayKey(viewDate)];
+    var box=$("diary");
+    var food=(d&&d.food)||[], wk=(d&&d.workout)||[];
+    if(!food.length && !wk.length){ box.innerHTML='<div class="empty">Nada registrado neste dia ainda.</div>'; return; }
+    var html="";
+    food.forEach(function(e){
+      html+='<div class="entry"><div><div class="nm">🍽️ '+esc(e.nomes?e.nomes.join(", "):"Refeição")+'</div>'+
+        '<div class="meta">'+esc(e.hora||"")+' · P '+(e.proteina||0)+'g · C '+(e.carbo||0)+'g · G '+(e.gordura||0)+'g</div></div>'+
+        '<div style="display:flex;align-items:center;gap:8px;"><span class="cal t-amber">+'+e.calorias+'</span><button class="rm" data-del-food="'+e.id+'">×</button></div></div>';
+    });
+    wk.forEach(function(e){
+      html+='<div class="entry"><div><div class="nm">🏋️ '+esc(e.atividade)+'</div>'+
+        '<div class="meta">'+esc(e.hora||"")+' · '+(e.duracao||0)+' min'+(e.intensidade?(" · "+esc(e.intensidade)):"")+'</div></div>'+
+        '<div style="display:flex;align-items:center;gap:8px;"><span class="cal t-green">−'+e.calorias+'</span><button class="rm" data-del-wk="'+e.id+'">×</button></div></div>';
+    });
+    box.innerHTML=html;
+    Array.prototype.forEach.call(box.querySelectorAll("[data-del-food]"),function(b){
+      b.addEventListener("click",function(){
+        var id=b.getAttribute("data-del-food"), d=dayData(dayKey(viewDate));
+        d.food=d.food.filter(function(x){return x.id!==id;}); save(); renderAll();
+      });
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-del-wk]"),function(b){
+      b.addEventListener("click",function(){
+        var id=b.getAttribute("data-del-wk"), d=dayData(dayKey(viewDate));
+        d.workout=d.workout.filter(function(x){return x.id!==id;}); save(); renderAll();
+      });
+    });
+  }
+
+  function renderChart(){
+    var days=[];
+    for(var i=13;i>=0;i--){
+      var dt=new Date(); dt.setDate(dt.getDate()-i);
+      var k=dayKey(dt), t=totalsFor(k);
+      days.push({ k:k, dt:dt, net:t.inn-t.out });
+    }
+    var maxv=days.reduce(function(m,d){return Math.max(m,Math.abs(d.net));},1);
+    if(state.goal>0) maxv=Math.max(maxv,state.goal);
+    var goal=state.goal>0?state.goal:0;
+    var html=days.map(function(d){
+      var h=Math.max(2, Math.round((Math.abs(d.net)/maxv)*110));
+      var color="#60a5fa";
+      if(goal){ color=(d.net>goal)?"#fb7185":(d.net>goal*0.85?"#fbbf24":"#34d399"); }
+      if(d.net<0) color="#34d399";
+      var dd=d.dt.getDate();
+      return '<div class="col" title="'+d.k+': '+d.net+' kcal"><div class="colbar" style="height:'+h+'px;background:'+color+';"></div><div class="colday">'+dd+'</div></div>';
+    }).join("");
+    $("chart").innerHTML=html;
+    $("chartHint").textContent=goal?("Linha de meta: "+goal+" kcal · verde = abaixo, vermelho = acima"):"Defina sua meta nos ajustes para ver as cores.";
+  }
+
+  function renderAll(){ renderHeader(); renderSummary(); renderDiary(); renderChart(); }
+
+  // ---------- ajustes ----------
+  var dlg=$("settingsDlg");
+  function openSettings(){
+    $("keyInput").value=state.apiKey||"";
+    $("goalInput").value=state.goal||"";
+    $("pesoInput").value=state.peso!=null?state.peso:"";
+    $("modelInput").value=state.model||"claude-opus-4-8";
+    dlg.showModal();
+  }
+  $("settingsBtn").addEventListener("click", openSettings);
+  $("closeSettings").addEventListener("click", function(){ dlg.close(); });
+  $("saveSettings").addEventListener("click", function(){
+    state.apiKey=($("keyInput").value||"").trim();
+    state.goal=num($("goalInput").value,2000);
+    var p=($("pesoInput").value||"").trim();
+    state.peso=p?num(p,null):null;
+    state.model=$("modelInput").value||"claude-opus-4-8";
+    save(); dlg.close(); renderAll();
+    setStatus(state.apiKey?"Ajustes salvos ✓":"Salvo. Cole a chave da API para analisar fotos.", state.apiKey?"ok":"info");
+    setTimeout(function(){ setStatus(""); },2500);
+  });
+
+  // ---------- foto ----------
+  $("pickPhoto").addEventListener("click", function(){ $("photoInput").click(); });
+  $("photoInput").addEventListener("change", function(){
+    var f=this.files&&this.files[0]; if(!f) return;
+    setStatus('<span class="spin"></span> Carregando foto...','info');
+    fileToPhoto(f).then(function(p){
+      pendingPhoto=p; pendingFood=null; $("foodResult").innerHTML="";
+      var pv=$("photoPreview"); pv.src=p.dataUrl; pv.style.display="block";
+      $("analyzeFood").disabled=false;
+      setStatus("Foto pronta. Toque em Analisar foto.","ok");
+      setTimeout(function(){ setStatus(""); },2000);
+    }).catch(function(e){ setStatus(e.message,"err"); });
+    this.value="";
+  });
+  // colar imagem
+  window.addEventListener("paste", function(ev){
+    var items=(ev.clipboardData&&ev.clipboardData.items)||[];
+    for(var i=0;i<items.length;i++){
+      if(items[i].type&&items[i].type.indexOf("image")===0){
+        var f=items[i].getAsFile();
+        if(f){
+          ev.preventDefault();
+          setStatus('<span class="spin"></span> Carregando foto colada...','info');
+          fileToPhoto(f).then(function(p){
+            pendingPhoto=p; pendingFood=null; $("foodResult").innerHTML="";
+            var pv=$("photoPreview"); pv.src=p.dataUrl; pv.style.display="block";
+            $("analyzeFood").disabled=false;
+            setStatus("Foto colada pronta. Toque em Analisar foto.","ok");
+            setTimeout(function(){ setStatus(""); },2000);
+          }).catch(function(e){ setStatus(e.message,"err"); });
+        }
+        return;
+      }
+    }
+  });
+  $("analyzeFood").addEventListener("click", analyzeFood);
+  $("analyzeWorkout").addEventListener("click", analyzeWorkout);
+
+  // ---------- navegação de data ----------
+  $("prevDay").addEventListener("click", function(){ viewDate.setDate(viewDate.getDate()-1); pendingFood=null;pendingWorkout=null;$("foodResult").innerHTML="";$("workoutResult").innerHTML=""; renderAll(); });
+  $("nextDay").addEventListener("click", function(){
+    var hoje=dayKey(new Date());
+    var nx=new Date(viewDate); nx.setDate(nx.getDate()+1);
+    if(dayKey(nx)>hoje) return;
+    viewDate=nx; pendingFood=null;pendingWorkout=null;$("foodResult").innerHTML="";$("workoutResult").innerHTML=""; renderAll();
+  });
+  $("todayBtn").addEventListener("click", function(){ viewDate=new Date(); pendingFood=null;pendingWorkout=null;$("foodResult").innerHTML="";$("workoutResult").innerHTML=""; renderAll(); });
+
+  // ---------- init ----------
+  load(); renderAll();
+  if(!state.apiKey){ setStatus("Toque em ⚙ Ajustes e cole sua chave da API para começar.","info"); setTimeout(function(){ try{ openSettings(); }catch(e){} },400); }
+})();
+</script>
+</body>
+</html>
