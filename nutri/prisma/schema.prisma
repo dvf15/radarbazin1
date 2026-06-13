@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Day {
+  id             String   @id @default(cuid())
+  date           String   @unique // "2026-06-12"
+  training_type  String   @default("rest") // rest | light | strength | legs | bjj | double
+  training_notes String?
+  closed         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  meals          Meal[]
+}
+
+model Meal {
+  id          String   @id @default(cuid())
+  day_id      String
+  day         Day      @relation(fields: [day_id], references: [id], onDelete: Cascade)
+  code        String // R1, R2, R3...
+  description String
+  photo_url   String?
+  kcal        Float
+  protein_g   Float
+  carb_g      Float
+  fat_g       Float
+  confidence  Int
+  flags       String? // JSON array serializado de flags da IA
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@index([day_id])
+}
+
+model KnownFood {
+  id               String  @id @default(cuid())
+  name             String  @unique
+  serving_g        Float
+  kcal_per_serving Float
+  protein_g        Float
+  carb_g           Float
+  fat_g            Float
+  notes            String?
+}
